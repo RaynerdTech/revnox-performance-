@@ -1,26 +1,281 @@
+/* This file defines the global Revnox Performance design tokens, theme colors, base styles, and Tailwind CSS setup. */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+
+  --color-footer: var(--footer);
+--color-footer-foreground: var(--footer-foreground);
+--color-footer-muted: var(--footer-muted);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #f7f7f4;
+  --foreground: #111113;
+
+  --card: #ffffff;
+  --card-foreground: #111113;
+
+  --surface: #eeeeea;
+  --surface-foreground: #171719;
+
+  --muted: #e7e7e2;
+  --muted-foreground: #68686f;
+
+  --border: #deded7;
+  --input: #d8d8d1;
+  --ring: #c1121f;
+
+  --primary: #c1121f;
+  --primary-foreground: #ffffff;
+
+  --secondary: #18181b;
+  --secondary-foreground: #ffffff;
+
+  --accent: #a8adb7;
+  --accent-foreground: #101014;
+
+  --danger: #b91c1c;
+  --danger-foreground: #ffffff;
+  
+  --radius: 0.875rem;
+
+  --shadow-soft: 0 18px 50px rgba(17, 17, 19, 0.08);
+  --shadow-card: 0 14px 32px rgba(17, 17, 19, 0.07);
+  --shadow-focus: 0 0 0 4px rgba(193, 18, 31, 0.18);
+
+  --footer: #08080a;
+--footer-foreground: #f7f7f4;
+--footer-muted: rgba(247, 247, 244, 0.62);
+}
+
+.dark {
+  --background: #070708;
+  --foreground: #f4f4f2;
+
+  --card: #101012;
+  --card-foreground: #f4f4f2;
+
+  --surface: #151518;
+  --surface-foreground: #eeeeec;
+
+  --muted: #202024;
+  --muted-foreground: #a6a6ad;
+
+  --border: #2d2d33;
+  --input: #303037;
+  --ring: #ff3347;
+
+  --primary: #ff253a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f2;
+  --secondary-foreground: #101014;
+
+  --accent: #8c929d;
+  --accent-foreground: #ffffff;
+
+  --danger: #ef4444;
+  --danger-foreground: #ffffff;
+
+  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.36);
+  --shadow-card: 0 18px 44px rgba(0, 0, 0, 0.28);
+  --shadow-focus: 0 0 0 4px rgba(255, 37, 58, 0.22);
+
+  --footer: #08080a;
+--footer-foreground: #f7f7f4;
+--footer-muted: rgba(247, 247, 244, 0.62);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.revnox-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(128, 128, 128, 0.11) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 128, 128, 0.11) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.revnox-radial {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(193, 18, 31, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 18%, rgba(168, 173, 183, 0.18), transparent 34%),
+    radial-gradient(circle at 50% 100%, rgba(193, 18, 31, 0.09), transparent 40%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* This animation powers the premium horizontal marquee used on the homepage. */
+@keyframes revnox-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.revnox-marquee-track {
+  animation: revnox-marquee 28s linear infinite;
+}
+
+.revnox-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+
+/* This animation powers the branded loading screen shown while storefront routes load. */
+@keyframes revnox-loader-bar {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(230%);
+  }
+}
+
+@keyframes revnox-loader-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.revnox-loader-bar {
+  animation: revnox-loader-bar 1.15s ease-in-out infinite;
+}
+
+.revnox-loader-pulse {
+  animation: revnox-loader-pulse 1.65s ease-in-out infinite;
+}
+
+
+/* Hides native carousel scrollbars while preserving horizontal swipe/scroll behavior. */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}   
+
+
+/* Powers the compact category marquee on the homepage. */
+@keyframes revnox-category-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-33.333%, 0, 0);
+  }
+}
+
+.revnox-category-marquee-track {
+  animation: revnox-category-marquee 34s linear infinite;
+  will-change: transform;
+}
+
+.revnox-category-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revnox-category-marquee-track {
+    animation: none;
+  }
+}
+
+/* Keeps primary/action buttons readable across light and dark themes. */
+.bg-primary,
+.bg-primary * {
+  color: var(--primary-foreground);
+}
+
+.bg-danger,
+.bg-danger * {
+  color: var(--danger-foreground);
 }
