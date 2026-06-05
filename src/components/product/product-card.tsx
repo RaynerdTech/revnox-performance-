@@ -8,48 +8,14 @@ import { useEffect, useState } from "react";
 import type { Product } from "@/lib/commerce/types";
 import { formatMoney } from "@/lib/utils/money";
 import { cn } from "@/lib/utils/cn";
-
-const WISHLIST_STORAGE_KEY = "revnox-wishlist";
+import {
+  isProductWishlisted,
+  toggleWishlistItem,
+} from "@/lib/utils/wishlist";
 
 type ProductCardProps = {
   product: Product;
 };
-
-type StoredWishlistItem = {
-  id: string;
-  handle: string;
-  title: string;
-  category: string;
-  image: string;
-  imageAlt: string;
-  price: number;
-  currencyCode: string;
-};
-
-function getStoredWishlistItems(): StoredWishlistItem[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const storedItems = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
-
-    if (!storedItems) {
-      return [];
-    }
-
-    const parsedItems = JSON.parse(storedItems);
-
-    return Array.isArray(parsedItems) ? parsedItems : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveStoredWishlistItems(items: StoredWishlistItem[]) {
-  window.localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("revnox:wishlist-updated"));
-}
 
 export function ProductCard({ product }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -57,42 +23,28 @@ export function ProductCard({ product }: ProductCardProps) {
   const productHref = `/products/${product.handle}`;
 
   useEffect(() => {
-    const items = getStoredWishlistItems();
+    function syncWishlist() {
+      setIsWishlisted(isProductWishlisted(product.id));
+    }
 
-    setIsWishlisted(items.some((item) => item.id === product.id));
+    syncWishlist();
+
+    window.addEventListener("revnox:wishlist-updated", syncWishlist);
+    window.addEventListener("storage", syncWishlist);
+
+    return () => {
+      window.removeEventListener("revnox:wishlist-updated", syncWishlist);
+      window.removeEventListener("storage", syncWishlist);
+    };
   }, [product.id]);
 
   function toggleWishlist() {
-    const currentItems = getStoredWishlistItems();
-    const productIsSaved = currentItems.some((item) => item.id === product.id);
-
-    if (productIsSaved) {
-      const nextItems = currentItems.filter((item) => item.id !== product.id);
-      saveStoredWishlistItems(nextItems);
-      setIsWishlisted(false);
-      return;
-    }
-
-    const nextItems = [
-      ...currentItems,
-      {
-        id: product.id,
-        handle: product.handle,
-        title: product.title,
-        category: product.category,
-        image: product.image,
-        imageAlt: product.imageAlt,
-        price: product.price,
-        currencyCode: product.currencyCode,
-      },
-    ];
-
-    saveStoredWishlistItems(nextItems);
-    setIsWishlisted(true);
+    const nextItems = toggleWishlistItem(product);
+    setIsWishlisted(nextItems.some((item) => item.id === product.id));
   }
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card  transition-transform duration-200 hover:-translate-y-1">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card transition-transform duration-200 hover:-translate-y-1">
       <div className="relative border-b border-border bg-surface">
         {product.badge ? (
           <div className="absolute left-4 top-4 z-10 rounded-full bg-primary px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-primary-foreground">
@@ -105,7 +57,7 @@ export function ProductCard({ product }: ProductCardProps) {
           onClick={toggleWishlist}
           className={cn(
             "absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/90 text-foreground/70 shadow-[var(--shadow-card)] backdrop-blur transition-colors hover:border-primary hover:text-primary",
-            isWishlisted && "border-primary bg-primary text-primary-foreground",
+            isWishlisted && "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
           )}
           aria-label={
             isWishlisted
@@ -114,9 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
           }
           aria-pressed={isWishlisted}
         >
-          <Heart
-            className={cn("h-4 w-4", isWishlisted && "fill-current")}
-          />
+          <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
         </button>
 
         <Link

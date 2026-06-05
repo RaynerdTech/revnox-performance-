@@ -199,38 +199,6 @@ a {
 }
 
 
-/* This animation powers the branded loading screen shown while storefront routes load. */
-@keyframes revnox-loader-bar {
-  0% {
-    transform: translateX(-110%);
-  }
-
-  100% {
-    transform: translateX(230%);
-  }
-}
-
-@keyframes revnox-loader-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-
-  50% {
-    transform: scale(1.08);
-    opacity: 1;
-  }
-}
-
-.revnox-loader-bar {
-  animation: revnox-loader-bar 1.15s ease-in-out infinite;
-}
-
-.revnox-loader-pulse {
-  animation: revnox-loader-pulse 1.65s ease-in-out infinite;
-}
-
 
 /* Hides native carousel scrollbars while preserving horizontal swipe/scroll behavior. */
 .scrollbar-hide {
@@ -278,4 +246,150 @@ a {
 .bg-danger,
 .bg-danger * {
   color: var(--danger-foreground);
+}
+
+a {
+  pointer-events: cursor;
+}
+
+
+/* Themed scrollbar for sticky catalog filter panels. */
+.revnox-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--surface);
+}
+
+.revnox-sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.revnox-sidebar-scroll::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 999px;
+}
+
+.revnox-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 999px;
+  border: 2px solid var(--surface);
+}
+
+.revnox-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ring);
+}
+
+
+
+
+/* Premium glass surfaces for overlays and floating search UI. */
+.revnox-glass-overlay {
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+  backdrop-filter: blur(30px) saturate(145%);
+  -webkit-backdrop-filter: blur(30px) saturate(145%);
+}
+
+.revnox-glass {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  box-shadow:
+    0 24px 80px color-mix(in srgb, var(--foreground) 14%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--background) 80%, transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+.revnox-glass-strong {
+  background: color-mix(in srgb, var(--card) 97%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 96%, transparent);
+  box-shadow:
+    0 24px 80px color-mix(in srgb, var(--foreground) 16%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--background) 86%, transparent);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+}
+
+.revnox-glass-soft {
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+
+/* Themed scrollbar for header search results. */
+.revnox-search-results-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+.revnox-search-results-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.revnox-search-results-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.revnox-search-results-scroll::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.revnox-search-results-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ring);
+  background-clip: content-box;
+}
+
+
+
+/* Premium branded loading system. */
+@keyframes revnox-loader-scan {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes revnox-loader-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes revnox-loader-ring-reverse {
+  0% {
+    transform: rotate(360deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.revnox-loader-scan {
+  animation: revnox-loader-scan 1.05s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.revnox-loader-ring {
+  animation: revnox-loader-ring 0.85s linear infinite;
+}
+
+.revnox-loader-ring-reverse {
+  animation: revnox-loader-ring-reverse 1.25s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revnox-loader-scan,
+  .revnox-loader-ring,
+  .revnox-loader-ring-reverse {
+    animation: none;
+  }
 }

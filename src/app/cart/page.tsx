@@ -42,7 +42,7 @@ export default async function CartPage() {
 
 function EmptyCart() {
   return (
-    <div className="mx-auto max-w-xl rounded-[2rem] border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)]">
+    <div className="mx-auto max-w-xl rounded-[2rem] border border-border bg-card p-10 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
         <ShoppingBag className="h-7 w-7" />
       </div>

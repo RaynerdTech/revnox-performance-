@@ -32,7 +32,7 @@ export function MobileMenu() {
 
       <div
         className={cn(
-          "absolute left-0 right-0 top-20 border-b border-border bg-background/96 px-4 py-5 shadow-[var(--shadow-soft)] backdrop-blur-xl transition-all duration-200",
+          "absolute left-0 right-0 top-20 border-b border-border bg-background/96 px-4 py-5 backdrop-blur-xl transition-all duration-200",
           isOpen
             ? "visible translate-y-0 opacity-100"
             : "invisible -translate-y-3 opacity-0",
@@ -44,7 +44,7 @@ export function MobileMenu() {
               key={item.href}
               href={item.href}
               onClick={() => setIsOpen(false)}
-              className="rounded-2xl border border-border bg-card px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-card-foreground transition-colors hover:border-primary hover:text-primary"
+              className="border border-border bg-card px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-card-foreground transition-colors hover:border-primary hover:text-primary"
             >
               {item.label}
             </Link>

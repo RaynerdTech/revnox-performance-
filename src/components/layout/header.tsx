@@ -1,4 +1,4 @@
-// This file defines the main storefront header with responsive image branding, navigation, inline cart count, mobile controls, and theme controls.
+// This file defines the main storefront header with responsive image branding, global search, navigation, inline cart count, mobile controls, and theme controls.
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
@@ -6,7 +6,9 @@ import { MobileMenu } from "@/components/layout/mobile-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Container } from "@/components/ui/container";
 import { buttonVariants } from "@/components/ui/button";
+import { HeaderSearch } from "@/components/search/header-search";
 import { getCurrentCart } from "@/lib/commerce/cart";
+import { getProducts } from "@/lib/commerce/catalog";
 import { cn } from "@/lib/utils/cn";
 
 const navItems = [
@@ -19,15 +21,15 @@ const navItems = [
 ];
 
 export async function Header() {
-  const cart = await getCurrentCart();
+  const [cart, products] = await Promise.all([getCurrentCart(), getProducts()]);
   const cartQuantity = cart?.totalQuantity ?? 0;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
-      <Container className="relative flex h-20 items-center justify-between gap-4">
+      <Container className="relative flex h-16 items-center justify-between gap-2 sm:h-20 sm:gap-4">
         <Link
           href="/"
-          className="flex shrink-0 items-center"
+          className="flex min-w-0 shrink-0 items-center"
           aria-label="Go to Revnox Performance homepage"
         >
           <Image
@@ -36,7 +38,7 @@ export async function Header() {
             width={220}
             height={78}
             priority
-            className="block h-auto w-[132px] object-contain dark:hidden sm:w-[160px]"
+            className="block h-auto w-[104px] object-contain dark:hidden sm:w-[160px]"
           />
 
           <Image
@@ -45,7 +47,7 @@ export async function Header() {
             width={220}
             height={78}
             priority
-            className="hidden h-auto w-[132px] object-contain dark:block sm:w-[160px]"
+            className="hidden h-auto w-[104px] object-contain dark:block sm:w-[160px]"
           />
         </Link>
 
@@ -61,14 +63,16 @@ export async function Header() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <HeaderSearch products={products} />
+
           <ThemeToggle />
 
           <Link
             href="/cart"
             className={cn(
               buttonVariants({ variant: "primary", size: "md" }),
-              "relative h-11 px-3 sm:px-5",
+              "relative h-10 w-10 px-0 sm:h-11 sm:w-auto sm:px-5",
             )}
             aria-label={
               cartQuantity > 0

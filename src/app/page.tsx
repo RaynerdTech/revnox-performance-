@@ -224,26 +224,69 @@ export default async function Home() {
         </Container>
       </section>
 
-      <section className="border-y border-border bg-footer text-footer-foreground">
-        <Container className="grid gap-8 py-16 lg:grid-cols-3">
-          {buildPaths.map((build) => (
-            <article
-              key={build.title}
-              className="rounded-[1.5rem] border border-border bg-background/5 p-6 shadow-[var(--shadow-card)]"
-            >
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">
-                Build path
-              </p>
-              <h3 className="mt-4 text-2xl font-black uppercase tracking-[-0.04em] text-footer-foreground">
-                {build.title}
-              </h3>
-              <p className="mt-4 text-base font-medium leading-7 text-footer-muted">
-                {build.description}
-              </p>
-            </article>
-          ))}
-        </Container>
-      </section>
+     <section className="border-y border-border bg-footer text-footer-foreground">
+  <Container className="grid gap-10 py-16 lg:grid-cols-[0.75fr_1.25fr] lg:items-stretch">
+    <div className="flex flex-col justify-between border-l-4 border-primary pl-6">
+      <div>
+        <p className="text-sm font-black uppercase tracking-[0.24em] text-primary">
+          Build paths
+        </p>
+
+        <h2 className="mt-4 text-4xl font-black uppercase leading-[0.95] tracking-[-0.06em] text-footer-foreground sm:text-5xl">
+          Shop by intent, not guesswork.
+        </h2>
+
+        <p className="mt-5 max-w-md text-base font-medium leading-7 text-footer-muted">
+          Start with how the car is driven, then move into the parts that match
+          the build direction.
+        </p>
+      </div>
+
+      <Link
+        href="/products"
+        className={cn(
+          buttonVariants({ variant: "primary", size: "lg" }),
+          "mt-8 w-fit",
+        )}
+      >
+        Open catalog
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+
+    <div className="grid gap-3">
+      {buildPaths.map((build, index) => (
+        <Link
+          key={build.title}
+          href="/products"
+          className="group relative grid gap-6 border border-border bg-background/5 p-6 transition-colors hover:border-primary/70 hover:bg-background/10 sm:grid-cols-[120px_1fr_auto] sm:items-center"
+        >
+          <div className="text-5xl font-black leading-none tracking-[-0.08em] text-footer-foreground/12 transition-colors group-hover:text-primary/35">
+            {String(index + 1).padStart(2, "0")}
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-primary">
+              Build path
+            </p>
+
+            <h3 className="text-2xl font-black uppercase leading-none tracking-[-0.04em] text-footer-foreground">
+              {build.title}
+            </h3>
+
+            <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-footer-muted">
+              {build.description}
+            </p>
+          </div>
+
+          <div className="flex h-11 w-11 items-center justify-center border border-border text-footer-muted transition-colors group-hover:border-primary group-hover:text-primary">
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </div>
+        </Link>
+      ))}
+    </div>
+  </Container>
+</section>
 
       <Footer />
     </main>

@@ -45,7 +45,7 @@ export function CartSummary({ cart, isUpdating = false }: CartSummaryProps) {
           <button
             type="submit"
             disabled={cart.lines.length === 0}
-            className="w-full rounded-full bg-primary px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-primary-foreground shadow-[var(--shadow-card)] transition-transform duration-200 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
+            className="w-full rounded-full bg-primary px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-primary-foreground  transition-transform duration-200 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
           >
             Checkout
           </button>

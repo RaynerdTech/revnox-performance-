@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils/cn";
 
 type MobileCatalogFilterProps = {
   categories: ProductCategory[];
+  activeSearch?: string;
   activeCategory?: string;
   activeFeatured?: boolean;
   activeSort?: string;
@@ -16,6 +17,7 @@ type MobileCatalogFilterProps = {
 
 export function MobileCatalogFilter({
   categories,
+  activeSearch,
   activeCategory,
   activeFeatured,
   activeSort,
@@ -67,10 +69,35 @@ export function MobileCatalogFilter({
           </button>
         </div>
 
+        {activeSearch ? (
+          <div className="mb-4 border border-border bg-card p-4">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-foreground/60">
+              Search
+            </p>
+
+            <p className="mt-2 text-sm font-black text-foreground">
+              “{activeSearch}”
+            </p>
+
+            <Link
+              href="/products"
+              onClick={() => setIsOpen(false)}
+              className="mt-3 inline-flex text-xs font-black uppercase tracking-[0.16em] text-primary"
+            >
+              Clear search
+            </Link>
+          </div>
+        ) : null}
+
         <div className="grid gap-3">
           <MobileFilterLink
             href="/products"
-            active={!activeCategory && !activeFeatured && !activeSort}
+            active={
+              !activeSearch &&
+              !activeCategory &&
+              !activeFeatured &&
+              !activeSort
+            }
             onClick={() => setIsOpen(false)}
           >
             All products
@@ -79,7 +106,10 @@ export function MobileCatalogFilter({
           {categories.map((category) => (
             <MobileFilterLink
               key={category.id}
-              href={`/products?category=${category.handle}`}
+              href={buildFilterHref({
+                q: activeSearch,
+                category: category.handle,
+              })}
               active={activeCategory === category.handle}
               onClick={() => setIsOpen(false)}
             >
@@ -89,7 +119,10 @@ export function MobileCatalogFilter({
           ))}
 
           <MobileFilterLink
-            href="/products?featured=true"
+            href={buildFilterHref({
+              q: activeSearch,
+              featured: "true",
+            })}
             active={activeFeatured}
             onClick={() => setIsOpen(false)}
           >
@@ -97,7 +130,10 @@ export function MobileCatalogFilter({
           </MobileFilterLink>
 
           <MobileFilterLink
-            href="/products?sort=best-selling"
+            href={buildFilterHref({
+              q: activeSearch,
+              sort: "best-selling",
+            })}
             active={activeSort === "best-selling"}
             onClick={() => setIsOpen(false)}
           >
@@ -107,6 +143,24 @@ export function MobileCatalogFilter({
       </aside>
     </>
   );
+}
+
+function buildFilterHref(params: {
+  q?: string;
+  category?: string;
+  featured?: string;
+  sort?: string;
+}) {
+  const searchParams = new URLSearchParams();
+
+  if (params.q) searchParams.set("q", params.q);
+  if (params.category) searchParams.set("category", params.category);
+  if (params.featured) searchParams.set("featured", params.featured);
+  if (params.sort) searchParams.set("sort", params.sort);
+
+  const queryString = searchParams.toString();
+
+  return queryString ? `/products?${queryString}` : "/products";
 }
 
 function MobileFilterLink({

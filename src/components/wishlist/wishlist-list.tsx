@@ -35,7 +35,7 @@ export function WishlistList() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-xl  border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)]">
+      <div className="mx-auto max-w-xl  border border-border bg-card p-10 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <Heart className="h-7 w-7" />
         </div>
@@ -67,11 +67,11 @@ export function WishlistList() {
       {items.map((item) => (
         <article
           key={item.id}
-          className="grid grid-cols-[92px_1fr_auto] items-center gap-4 border border-border bg-card p-4 shadow-[var(--shadow-card)] transition-transform duration-200 hover:-translate-y-0.5 sm:grid-cols-[120px_1fr_auto] sm:gap-5"
+          className="grid grid-cols-[92px_1fr_auto] items-center gap-4 border border-border bg-card p-4  transition-transform duration-200 hover:-translate-y-0.5 sm:grid-cols-[120px_1fr_auto] sm:gap-5  rounded-[1.5rem]"
         >
        <Link
   href={`/products/${item.handle}`}
-  className="relative h-[92px] w-[92px] shrink-0 overflow-hidden  border border-border bg-surface sm:h-[120px] sm:w-[120px]"
+  className="relative h-[92px] w-[92px] shrink-0 overflow-hidden  border border-border bg-surface sm:h-[120px] sm:w-[120px]  rounded-[1rem]"
 >
   {item.image ? (
     <Image

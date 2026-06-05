@@ -96,7 +96,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductDetailGallery product={product} />
 
             <div className="lg:sticky lg:top-28">
-              <div className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8">
+              <div className="rounded-[2rem] border border-border bg-card p-6 sm:p-8">
                 <div className="mb-5 flex flex-wrap gap-2">
                   <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary-foreground">
                     {product.category}
@@ -226,7 +226,7 @@ function DetailSignal({
   text: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+    <div className="rounded-2xl border border-border bg-card p-4 ">
       <Icon className="mb-3 h-5 w-5 text-primary" />
       <h2 className="text-xs font-black uppercase tracking-[0.18em]">
         {title}

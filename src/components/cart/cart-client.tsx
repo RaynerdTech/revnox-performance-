@@ -157,7 +157,7 @@ export function CartClient({ cart }: CartClientProps) {
 
   return (
     <div className="grid gap-8">
-      <section className="rounded-[1.75rem] border border-border bg-card p-4 shadow-[var(--shadow-soft)] sm:p-5">
+      <section className="rounded-[1.75rem] border border-border bg-card p-4 sm:p-5">
         <div className="border-b border-border pb-4">
           <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">
             My Cart ({optimisticCart.totalQuantity})

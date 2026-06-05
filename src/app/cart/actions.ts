@@ -10,21 +10,48 @@ import {
   updateCartLine,
 } from "@/lib/commerce/cart";
 
-export async function addToCartAction(formData: FormData) {
+export type AddToCartActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+  submittedAt: number | null;
+};
+
+export async function addToCartAction(
+  _previousState: AddToCartActionState,
+  formData: FormData,
+): Promise<AddToCartActionState> {
   const merchandiseId = String(formData.get("variantId") ?? "");
   const quantity = Number(formData.get("quantity") ?? 1);
 
   if (!merchandiseId) {
-    throw new Error("Missing product variant ID.");
+    return {
+      status: "error",
+      message: "Select an available product option before adding to cart.",
+      submittedAt: Date.now(),
+    };
   }
 
-  await addToCart({
-    merchandiseId,
-    quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
-  });
+  try {
+    await addToCart({
+      merchandiseId,
+      quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+    });
 
-  revalidatePath("/cart");
-  redirect("/cart");
+    revalidatePath("/cart");
+    revalidatePath("/", "layout");
+
+    return {
+      status: "success",
+      message: "Added to cart.",
+      submittedAt: Date.now(),
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "Could not add this product to cart. Try again.",
+      submittedAt: Date.now(),
+    };
+  }
 }
 
 export async function updateCartLineAction(formData: FormData) {

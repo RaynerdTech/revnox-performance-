@@ -26,7 +26,7 @@ export function CartLineItem({
   return (
     <div
     className={cn(
-  "grid gap-5 rounded-[1.5rem] border border-border bg-card p-4 shadow-[var(--shadow-card)] transition-opacity sm:grid-cols-1 lg:grid-cols-2 lg:items-center",
+  "grid gap-5 rounded-[1.5rem] border border-border bg-card p-4 transition-opacity sm:grid-cols-1 lg:grid-cols-2 lg:items-center",
   isPending && "opacity-80",
 )}
     >

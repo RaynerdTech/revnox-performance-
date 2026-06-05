@@ -1,6 +1,7 @@
-// This file renders the Shopify-powered product catalog page with server-side category and merchandising filters.
+// This file renders the Shopify-powered product catalog page with server-side search, category, and merchandising filters.
+import Image from "next/image";
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Search, SlidersHorizontal } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Container } from "@/components/ui/container";
@@ -8,11 +9,13 @@ import { ProductGrid } from "@/components/product/product-grid";
 import { CatalogSidebar } from "@/components/product/catalog-sidebar";
 import { getCategories, getProducts } from "@/lib/commerce/catalog";
 import type { Product } from "@/lib/commerce/types";
-import { cn } from "@/lib/utils/cn";
 import { MobileCatalogFilter } from "@/components/product/mobile-catalog-filter";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils/cn";
 
 type ProductsPageProps = {
   searchParams: Promise<{
+    q?: string;
     category?: string;
     featured?: string;
     sort?: string;
@@ -30,6 +33,7 @@ export default async function ProductsPage({
 }: ProductsPageProps) {
   const params = await searchParams;
 
+  const activeSearch = params.q?.trim() || "";
   const activeCategory = params.category;
   const activeFeatured = params.featured === "true";
   const activeSort = params.sort;
@@ -39,21 +43,30 @@ export default async function ProductsPage({
     getProducts(),
   ]);
 
+  const activeCategoryData =
+    categories.find((category) => category.handle === activeCategory) ?? null;
+
   const filteredProducts = filterProducts(products, {
+    activeSearch,
     activeCategory,
     activeFeatured,
     activeSort,
   });
 
-  const activeCategoryTitle =
-    categories.find((category) => category.handle === activeCategory)?.title ??
-    null;
-
   const pageTitle = getPageTitle({
-    activeCategoryTitle,
+    activeSearch,
+    activeCategoryTitle: activeCategoryData?.title ?? null,
     activeFeatured,
     activeSort,
   });
+
+  const pageDescription =
+    activeSearch.length > 0
+      ? `Showing catalog results for “${activeSearch}”.`
+      : activeCategoryData?.description ??
+        "Browse Shopify-powered performance parts organized for wheels, braking, suspension, exhaust, intake, and engine-focused upgrades.";
+
+  const hasCategoryImage = Boolean(activeCategoryData?.image?.url);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -65,19 +78,124 @@ export default async function ProductsPage({
 
       <Header />
 
-      <section className="revnox-grid-bg revnox-radial border-b border-border">
-        <Container className="py-16 sm:py-20">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">
-              Product catalog
-            </p>
-            <h1 className="mt-4 text-5xl font-black uppercase leading-[0.9] tracking-[-0.07em] sm:text-7xl">
-              {pageTitle}
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
-              Browse Shopify-powered performance parts organized for wheels,
-              braking, suspension, exhaust, intake, and engine-focused upgrades.
-            </p>
+      <section className="relative overflow-hidden border-b border-border bg-background">
+        <div className="pointer-events-none absolute inset-0 revnox-grid-bg opacity-20" />
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-1/2 bg-gradient-to-r from-primary/10 via-transparent to-transparent" />
+
+        <Container className="relative py-14 sm:py-18">
+          <div
+            className={cn(
+              "grid gap-8",
+              hasCategoryImage && "lg:grid-cols-[1fr_440px] lg:items-center",
+            )}
+          >
+            <div className="max-w-3xl">
+              <p className="text-sm font-black uppercase tracking-[0.24em] text-primary">
+                Product catalog
+              </p>
+
+              <h1 className="mt-4 text-5xl font-black uppercase leading-[0.9] tracking-[-0.07em] text-foreground sm:text-7xl">
+                {pageTitle}
+              </h1>
+
+              {pageDescription ? (
+                <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-foreground/75">
+                  {pageDescription}
+                </p>
+              ) : null}
+
+              <form action="/products" className="mt-8 w-full max-w-2xl">
+                <div className="grid w-full gap-3 border border-border bg-card px-4 py-3 shadow-[var(--shadow-card)] sm:grid-cols-[1fr_auto] sm:items-center">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Search className="h-5 w-5 shrink-0 text-primary" />
+
+                    <input
+                      type="search"
+                      name="q"
+                      defaultValue={activeSearch}
+                      placeholder="Search products..."
+                      className="h-11 min-w-0 flex-1 bg-transparent text-base font-bold text-foreground outline-none placeholder:text-foreground/45"
+                    />
+                  </div>
+
+                  {activeCategory ? (
+                    <input
+                      type="hidden"
+                      name="category"
+                      value={activeCategory}
+                    />
+                  ) : null}
+
+                  {activeFeatured ? (
+                    <input type="hidden" name="featured" value="true" />
+                  ) : null}
+
+                  {activeSort ? (
+                    <input type="hidden" name="sort" value={activeSort} />
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    className={cn(
+                      buttonVariants({ variant: "primary", size: "md" }),
+                      "w-full sm:w-auto",
+                    )}
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+
+              {(activeCategoryData || activeSearch) ? (
+                <div className="mt-8 grid w-full gap-3 sm:flex sm:flex-wrap sm:items-center">
+                  {activeCategoryData ? (
+                    <div className="w-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-card)] sm:w-auto">
+                      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/60">
+                        Category products
+                      </p>
+                      <p className="mt-1 text-2xl font-black tracking-[-0.05em] text-foreground">
+                        {activeCategoryData.productCount}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <Link
+                    href="/products"
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 border border-border bg-background px-5 text-xs font-black uppercase tracking-[0.18em] text-foreground/70 transition-colors hover:border-primary hover:text-primary sm:w-auto"
+                  >
+                    Clear filters
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+
+            {activeCategoryData?.image ? (
+              <div className="relative min-h-[260px] overflow-hidden border border-border bg-card shadow-[var(--shadow-soft)] sm:min-h-[340px] lg:min-h-[360px]">
+                <Image
+                  src={activeCategoryData.image.url}
+                  alt={
+                    activeCategoryData.image.altText || activeCategoryData.title
+                  }
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 440px"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/15 to-transparent lg:bg-gradient-to-t lg:from-background/75 lg:via-transparent lg:to-transparent" />
+
+                <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/85 p-5 backdrop-blur-md">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+                    {activeCategoryData.productCount} products
+                  </p>
+
+                  <h2 className="mt-2 text-2xl font-black uppercase leading-none tracking-[-0.05em] text-foreground">
+                    {activeCategoryData.title}
+                  </h2>
+                </div>
+              </div>
+            ) : null}
           </div>
         </Container>
       </section>
@@ -85,7 +203,7 @@ export default async function ProductsPage({
       <section className="border-b border-border bg-card">
         <Container className="flex flex-col gap-4 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-bold text-muted-foreground">
+            <p className="text-sm font-bold text-foreground/70">
               Showing{" "}
               <span className="font-black text-foreground">
                 {filteredProducts.length}
@@ -98,12 +216,12 @@ export default async function ProductsPage({
             </p>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground lg:hidden">
+          <div className="flex w-fit items-center gap-2 border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-foreground/65 lg:hidden">
             <SlidersHorizontal className="h-4 w-4 text-primary" />
             Tap the filter button
           </div>
 
-          <div className="hidden items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground lg:flex">
+          <div className="hidden items-center gap-2 border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-foreground/65 lg:flex">
             <SlidersHorizontal className="h-4 w-4 text-primary" />
             Server-rendered Shopify catalog
           </div>
@@ -116,6 +234,7 @@ export default async function ProductsPage({
             <div className="hidden lg:block">
               <CatalogSidebar
                 categories={categories}
+                activeSearch={activeSearch}
                 activeCategory={activeCategory}
                 activeFeatured={activeFeatured}
                 activeSort={activeSort}
@@ -126,7 +245,7 @@ export default async function ProductsPage({
               {filteredProducts.length > 0 ? (
                 <ProductGrid products={filteredProducts} />
               ) : (
-                <EmptyCatalogState />
+                <EmptyCatalogState activeSearch={activeSearch} />
               )}
             </div>
           </div>
@@ -135,6 +254,7 @@ export default async function ProductsPage({
 
       <MobileCatalogFilter
         categories={categories}
+        activeSearch={activeSearch}
         activeCategory={activeCategory}
         activeFeatured={activeFeatured}
         activeSort={activeSort}
@@ -148,12 +268,19 @@ export default async function ProductsPage({
 function filterProducts(
   products: Product[],
   filters: {
+    activeSearch?: string;
     activeCategory?: string;
     activeFeatured?: boolean;
     activeSort?: string;
   },
 ) {
   let filteredProducts = [...products];
+
+  if (filters.activeSearch) {
+    filteredProducts = filteredProducts.filter((product) =>
+      productMatchesSearch(product, filters.activeSearch ?? ""),
+    );
+  }
 
   if (filters.activeCategory) {
     filteredProducts = filteredProducts.filter(
@@ -174,15 +301,42 @@ function filterProducts(
   return filteredProducts;
 }
 
+function productMatchesSearch(product: Product, query: string) {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+  if (terms.length === 0) {
+    return true;
+  }
+
+  const searchableText = [
+    product.title,
+    product.description,
+    product.category,
+    product.categoryHandle,
+    product.brand,
+    product.tags.join(" "),
+    product.variants
+      .map((variant) => `${variant.title} ${variant.sku ?? ""}`)
+      .join(" "),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return terms.every((term) => searchableText.includes(term));
+}
+
 function getPageTitle({
+  activeSearch,
   activeCategoryTitle,
   activeFeatured,
   activeSort,
 }: {
+  activeSearch: string;
   activeCategoryTitle: string | null;
   activeFeatured: boolean;
   activeSort?: string;
 }) {
+  if (activeSearch) return "Search results";
   if (activeCategoryTitle) return activeCategoryTitle;
   if (activeFeatured) return "Featured products";
   if (activeSort === "best-selling") return "Best sellers";
@@ -190,45 +344,26 @@ function getPageTitle({
   return "Shop performance";
 }
 
-function MobileFilterChip({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active?: boolean;
-  children: React.ReactNode;
-}) {
+function EmptyCatalogState({ activeSearch }: { activeSearch: string }) {
   return (
-    <Link
-      href={href}
-      className={cn(
-        "rounded-full border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary hover:text-primary",
-        active &&
-          "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function EmptyCatalogState() {
-  return (
-    <div className="rounded-[1.5rem] border border-border bg-card p-10 text-center shadow-[var(--shadow-card)]">
+    <div className="border border-border bg-card p-10 text-center shadow-[var(--shadow-card)]">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">
         No products found
       </p>
-      <h2 className="mt-3 text-3xl font-black uppercase tracking-[-0.06em]">
+
+      <h2 className="mt-3 text-3xl font-black uppercase tracking-[-0.06em] text-foreground">
         Try another catalog filter.
       </h2>
-      <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-        This filter does not currently match any published Shopify products in
-        the storefront catalog.
+
+      <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-6 text-foreground/70">
+        {activeSearch
+          ? `No published storefront products matched “${activeSearch}”.`
+          : "This filter does not currently match any published Shopify products in the storefront catalog."}
       </p>
+
       <Link
         href="/products"
-        className="mt-7 inline-flex rounded-full bg-primary px-6 py-3 text-xs font-black uppercase tracking-[0.18em] text-primary-foreground"
+        className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-7")}
       >
         View all products
       </Link>
