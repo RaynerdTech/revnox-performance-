@@ -1,9 +1,9 @@
-// This file renders a reusable Shopify product card with readable token-based text and wishlist support.
+// This file renders a reusable Shopify product card with real availability and wishlist support.
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Product } from "@/lib/commerce/types";
 import { formatMoney } from "@/lib/utils/money";
@@ -17,30 +17,54 @@ type ProductCardProps = {
   product: Product;
 };
 
-export function ProductCard({ product }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+export function ProductCard({
+  product,
+}: ProductCardProps) {
+  const [isWishlisted, setIsWishlisted] =
+    useState(false);
 
   const productHref = `/products/${product.handle}`;
 
   useEffect(() => {
     function syncWishlist() {
-      setIsWishlisted(isProductWishlisted(product.id));
+      setIsWishlisted(
+        isProductWishlisted(product.id),
+      );
     }
 
     syncWishlist();
 
-    window.addEventListener("revnox:wishlist-updated", syncWishlist);
-    window.addEventListener("storage", syncWishlist);
+    window.addEventListener(
+      "revnox:wishlist-updated",
+      syncWishlist,
+    );
+
+    window.addEventListener(
+      "storage",
+      syncWishlist,
+    );
 
     return () => {
-      window.removeEventListener("revnox:wishlist-updated", syncWishlist);
-      window.removeEventListener("storage", syncWishlist);
+      window.removeEventListener(
+        "revnox:wishlist-updated",
+        syncWishlist,
+      );
+
+      window.removeEventListener(
+        "storage",
+        syncWishlist,
+      );
     };
   }, [product.id]);
 
   function toggleWishlist() {
     const nextItems = toggleWishlistItem(product);
-    setIsWishlisted(nextItems.some((item) => item.id === product.id));
+
+    setIsWishlisted(
+      nextItems.some(
+        (item) => item.id === product.id,
+      ),
+    );
   }
 
   return (
@@ -57,7 +81,8 @@ export function ProductCard({ product }: ProductCardProps) {
           onClick={toggleWishlist}
           className={cn(
             "absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/90 text-foreground/70 shadow-[var(--shadow-card)] backdrop-blur transition-colors hover:border-primary hover:text-primary",
-            isWishlisted && "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
+            isWishlisted &&
+              "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
           )}
           aria-label={
             isWishlisted
@@ -66,7 +91,12 @@ export function ProductCard({ product }: ProductCardProps) {
           }
           aria-pressed={isWishlisted}
         >
-          <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+          <Heart
+            className={cn(
+              "h-4 w-4",
+              isWishlisted && "fill-current",
+            )}
+          />
         </button>
 
         <Link
@@ -85,14 +115,26 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-4 flex items-start justify-between gap-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-foreground/65">
-            {product.brand}
-          </p>
+          {product.brand ? (
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-foreground/65">
+              {product.brand}
+            </p>
+          ) : (
+            <span />
+          )}
 
-          <div className="flex shrink-0 items-center gap-1.5 text-sm font-black text-foreground/80">
-            <Star className="h-4 w-4 fill-primary text-primary" />
-            {product.rating.toFixed(1)}
-          </div>
+          <p
+            className={cn(
+              "shrink-0 text-[11px] font-black uppercase tracking-[0.16em]",
+              product.availableForSale
+                ? "text-primary"
+                : "text-foreground/50",
+            )}
+          >
+            {product.availableForSale
+              ? "In stock"
+              : "Unavailable"}
+          </p>
         </div>
 
         <Link
@@ -116,12 +158,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
             <div className="mt-1 flex flex-wrap items-baseline gap-2">
               <p className="text-2xl font-black tracking-[-0.05em] text-foreground">
-                {formatMoney(product.price, product.currencyCode)}
+                {formatMoney(
+                  product.price,
+                  product.currencyCode,
+                )}
               </p>
 
               {product.compareAtPrice ? (
                 <p className="text-sm font-bold text-foreground/55 line-through">
-                  {formatMoney(product.compareAtPrice, product.currencyCode)}
+                  {formatMoney(
+                    product.compareAtPrice,
+                    product.currencyCode,
+                  )}
                 </p>
               ) : null}
             </div>

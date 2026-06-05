@@ -6,13 +6,13 @@ export type ProductCategory = {
   title: string;
   handle: string;
   description: string;
-    productCount: number;
-    image?: {
+  productCount: number;
+  image?: {
     url: string;
     altText: string;
     width?: number;
     height?: number;
-    };
+  };
 };
 
 export type ProductImage = {
@@ -49,8 +49,7 @@ export type Product = {
   imageAlt: string;
   images: ProductImage[];
   variants: ProductVariant[];
-  rating: number;
-  reviewCount: number;
+  availableForSale: boolean;
   badge?: ProductBadge;
   tags: string[];
   isBestSeller: boolean;
@@ -92,4 +91,3 @@ export type Cart = {
   currencyCode: string;
   lines: CartLine[];
 };
-

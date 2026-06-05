@@ -1,5 +1,6 @@
 // This file maps Shopify Storefront API product and collection data into the storefront commerce types.
 import "server-only";
+
 import type {
   Product,
   ProductBadge,
@@ -122,6 +123,7 @@ function getCompareAtPrice(product: ShopifyProduct) {
   const compareAtAmount = Number(
     product.compareAtPriceRange.minVariantPrice.amount,
   );
+
   const priceAmount = Number(product.priceRange.minVariantPrice.amount);
 
   if (!Number.isFinite(compareAtAmount) || compareAtAmount <= priceAmount) {
@@ -131,7 +133,10 @@ function getCompareAtPrice(product: ShopifyProduct) {
   return compareAtAmount;
 }
 
-function mapImage(image: ShopifyImage, fallbackAlt: string): ProductImage {
+function mapImage(
+  image: ShopifyImage,
+  fallbackAlt: string,
+): ProductImage {
   return {
     id: image.id,
     url: image.url,
@@ -156,7 +161,9 @@ function mapVariant(variant: ShopifyVariant): ProductVariant {
     sku: variant.sku ?? undefined,
     price,
     compareAtPrice:
-      compareAtPrice && compareAtPrice > price ? compareAtPrice : undefined,
+      compareAtPrice && compareAtPrice > price
+        ? compareAtPrice
+        : undefined,
     currencyCode: variant.price.currencyCode,
   };
 }
@@ -164,9 +171,13 @@ function mapVariant(variant: ShopifyVariant): ProductVariant {
 function mapShopifyProduct(product: ShopifyProduct): Product {
   const primaryCollection = product.collections.nodes[0];
 
+  const variants = product.variants.nodes.map(mapVariant);
+
   const images =
     product.images.nodes.length > 0
-      ? product.images.nodes.map((image) => mapImage(image, product.title))
+      ? product.images.nodes.map((image) =>
+          mapImage(image, product.title),
+        )
       : product.featuredImage
         ? [mapImage(product.featuredImage, product.title)]
         : [];
@@ -188,9 +199,10 @@ function mapShopifyProduct(product: ShopifyProduct): Product {
       "/images/product-wheel-dark.svg",
     imageAlt: product.featuredImage?.altText ?? product.title,
     images,
-    variants: product.variants.nodes.map(mapVariant),
-    rating: 4.8,
-    reviewCount: 0,
+    variants,
+    availableForSale: variants.some(
+      (variant) => variant.availableForSale,
+    ),
     badge: getProductBadge(product),
     tags: product.tags,
     isBestSeller: hasTag(product, "best-seller"),
@@ -199,7 +211,10 @@ function mapShopifyProduct(product: ShopifyProduct): Product {
 }
 
 export async function getShopifyProducts(first = 40) {
-  const data = await shopifyFetch<ProductsQueryResponse, { first: number }>({
+  const data = await shopifyFetch<
+    ProductsQueryResponse,
+    { first: number }
+  >({
     query: PRODUCTS_QUERY,
     variables: { first },
     revalidate: 300,
@@ -211,47 +226,60 @@ export async function getShopifyProducts(first = 40) {
 export async function getShopifyFeaturedProducts() {
   const products = await getShopifyProducts(40);
 
-  return products.filter((product) => product.isFeatured).slice(0, 8);
+  return products
+    .filter((product) => product.isFeatured)
+    .slice(0, 8);
 }
 
 export async function getShopifyBestSellingProducts() {
   const products = await getShopifyProducts(40);
 
-  return products.filter((product) => product.isBestSeller).slice(0, 8);
+  return products
+    .filter((product) => product.isBestSeller)
+    .slice(0, 8);
 }
 
 export async function getShopifyProductByHandle(handle: string) {
-  const data = await shopifyFetch<ProductByHandleResponse, { handle: string }>({
+  const data = await shopifyFetch<
+    ProductByHandleResponse,
+    { handle: string }
+  >({
     query: PRODUCT_BY_HANDLE_QUERY,
     variables: { handle },
     revalidate: 300,
   });
 
-  return data.product ? mapShopifyProduct(data.product) : null;
+  return data.product
+    ? mapShopifyProduct(data.product)
+    : null;
 }
 
 export async function getShopifyCategories(
   first = 10,
 ): Promise<ProductCategory[]> {
-  const data = await shopifyFetch<CollectionsQueryResponse, { first: number }>({
+  const data = await shopifyFetch<
+    CollectionsQueryResponse,
+    { first: number }
+  >({
     query: COLLECTIONS_QUERY,
     variables: { first },
     revalidate: 300,
   });
 
-return data.collections.nodes.map((collection) => ({
-  id: collection.id,
-  title: collection.title,
-  handle: collection.handle,
-  description: collection.description,
-  productCount: collection.products.nodes.length,
-  image: collection.image
-    ? {
-        url: collection.image.url,
-        altText: collection.image.altText ?? collection.title,
-        width: collection.image.width ?? undefined,
-        height: collection.image.height ?? undefined,
-      }
-    : undefined,
-}));
+  return data.collections.nodes.map((collection) => ({
+    id: collection.id,
+    title: collection.title,
+    handle: collection.handle,
+    description: collection.description,
+    productCount: collection.products.nodes.length,
+    image: collection.image
+      ? {
+          url: collection.image.url,
+          altText:
+            collection.image.altText ?? collection.title,
+          width: collection.image.width ?? undefined,
+          height: collection.image.height ?? undefined,
+        }
+      : undefined,
+  }));
 }
