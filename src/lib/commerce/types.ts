@@ -1,5 +1,9 @@
-// This file defines shared commerce types used by Shopify products, collections, cart, and checkout features.
-export type ProductBadge = "Best Seller" | "Featured" | "New" | "Limited";
+// This file defines shared commerce types used by products, collections, variants, cart, and checkout.
+export type ProductBadge =
+  | "Best Seller"
+  | "Featured"
+  | "New"
+  | "Limited";
 
 export type ProductCategory = {
   id: string;
@@ -23,6 +27,11 @@ export type ProductImage = {
   height?: number;
 };
 
+export type ProductOptionSelection = {
+  name: string;
+  value: string;
+};
+
 export type ProductVariant = {
   id: string;
   title: string;
@@ -32,6 +41,8 @@ export type ProductVariant = {
   price: number;
   compareAtPrice?: number;
   currencyCode: string;
+  image?: ProductImage;
+  selectedOptions: ProductOptionSelection[];
 };
 
 export type Product = {

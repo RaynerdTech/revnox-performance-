@@ -1,49 +1,94 @@
-// This file renders available Shopify product variants on the product detail page.
+// This file renders real Shopify details for the currently selected product variant.
 import type { ProductVariant } from "@/lib/commerce/types";
-import { formatMoney } from "@/lib/utils/money";
 
 type ProductVariantListProps = {
-  variants: ProductVariant[];
+  variant?: ProductVariant | null;
 };
 
-export function ProductVariantList({ variants }: ProductVariantListProps) {
-  if (variants.length === 0) {
+export function ProductVariantList({
+  variant,
+}: ProductVariantListProps) {
+  if (!variant) {
     return null;
   }
 
+  const selectedOptions =
+    variant.selectedOptions.filter(
+      (option) =>
+        !(
+          option.name === "Title" &&
+          option.value === "Default Title"
+        ),
+    );
+
+  const inventoryLabel =
+    typeof variant.quantityAvailable ===
+    "number"
+      ? variant.quantityAvailable > 0
+        ? `${variant.quantityAvailable} available`
+        : "Unavailable"
+      : variant.availableForSale
+        ? "In stock"
+        : "Unavailable";
+
   return (
-    <div className="rounded-[1.5rem] border border-border bg-card p-5">
-      <h2 className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
-        Available options
-      </h2>
+    <div className="mt-6 border-y border-border py-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/55">
+            Selected option
+          </p>
 
-      <div className="mt-4 grid gap-3">
-        {variants.map((variant) => (
-          <div
-            key={variant.id}
-            className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4"
-          >
-            <div>
-              <p className="font-black uppercase tracking-[-0.03em]">
-                {variant.title}
-              </p>
-              {variant.sku ? (
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  SKU: {variant.sku}
-                </p>
-              ) : null}
-            </div>
+          <p className="mt-2 font-black uppercase tracking-[-0.03em] text-foreground">
+            {variant.title}
+          </p>
 
-            <div className="text-right">
-              <p className="font-black">
-                {formatMoney(variant.price, variant.currencyCode)}
-              </p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                {variant.availableForSale ? "Available" : "Unavailable"}
-              </p>
+          {selectedOptions.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {selectedOptions.map(
+                (option) => (
+                  <span
+                    key={`${option.name}-${option.value}`}
+                    className="border border-border bg-background px-3 py-2 text-xs font-bold text-foreground/70"
+                  >
+                    {option.name}:{" "}
+                    {option.value}
+                  </span>
+                ),
+              )}
             </div>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 sm:text-right">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/55">
+              Availability
+            </p>
+
+            <p
+              className={
+                variant.availableForSale
+                  ? "mt-2 text-sm font-black uppercase tracking-[0.12em] text-primary"
+                  : "mt-2 text-sm font-black uppercase tracking-[0.12em] text-foreground/50"
+              }
+            >
+              {inventoryLabel}
+            </p>
           </div>
-        ))}
+
+          {variant.sku ? (
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/55">
+                SKU
+              </p>
+
+              <p className="mt-2 break-all text-sm font-black text-foreground">
+                {variant.sku}
+              </p>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

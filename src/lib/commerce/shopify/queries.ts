@@ -7,6 +7,7 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
     description
     vendor
     tags
+
     featuredImage {
       id
       url
@@ -14,7 +15,8 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
       width
       height
     }
-    images(first: 8) {
+
+    images(first: 12) {
       nodes {
         id
         url
@@ -23,6 +25,7 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
         height
       }
     }
+
     collections(first: 3) {
       nodes {
         id
@@ -30,29 +33,47 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
         handle
       }
     }
-  variants(first: 100) {
-  nodes {
-    id
-    title
-    availableForSale
-    quantityAvailable
-    sku
+
+    variants(first: 100) {
+      nodes {
+        id
+        title
+        availableForSale
+        quantityAvailable
+        sku
+
+        selectedOptions {
+          name
+          value
+        }
+
+        image {
+          id
+          url
+          altText
+          width
+          height
+        }
+
         price {
           amount
           currencyCode
         }
+
         compareAtPrice {
           amount
           currencyCode
         }
       }
     }
+
     priceRange {
       minVariantPrice {
         amount
         currencyCode
       }
     }
+
     compareAtPriceRange {
       minVariantPrice {
         amount
@@ -66,7 +87,11 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   ${PRODUCT_FRAGMENT}
 
   query Products($first: Int!) {
-    products(first: $first, sortKey: CREATED_AT, reverse: true) {
+    products(
+      first: $first
+      sortKey: CREATED_AT
+      reverse: true
+    ) {
       nodes {
         ...ProductFields
       }
@@ -74,7 +99,7 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `;
 
-export const COLLECTIONS_QUERY = `#graphql
+export const COLLECTIONS_QUERY = /* GraphQL */ `
   query Collections($first: Int!) {
     collections(first: $first) {
       nodes {
@@ -82,12 +107,14 @@ export const COLLECTIONS_QUERY = `#graphql
         title
         handle
         description
+
         image {
           url
           altText
           width
           height
         }
+
         products(first: 100) {
           nodes {
             id
@@ -108,37 +135,54 @@ export const PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
   }
 `;
 
+export const PRODUCT_RECOMMENDATIONS_QUERY = /* GraphQL */ `
+  ${PRODUCT_FRAGMENT}
+
+  query ProductRecommendations($productId: ID!) {
+    productRecommendations(productId: $productId) {
+      ...ProductFields
+    }
+  }
+`;
+
 export const CART_FRAGMENT = /* GraphQL */ `
   fragment CartFields on Cart {
     id
     checkoutUrl
     totalQuantity
+
     cost {
       subtotalAmount {
         amount
         currencyCode
       }
+
       totalAmount {
         amount
         currencyCode
       }
     }
+
     lines(first: 100) {
       nodes {
         id
         quantity
-       merchandise {
-  ... on ProductVariant {
-    id
-    title
-    quantityAvailable
-    price {
+
+        merchandise {
+          ... on ProductVariant {
+            id
+            title
+            quantityAvailable
+
+            price {
               amount
               currencyCode
             }
+
             product {
               title
               handle
+
               featuredImage {
                 url
                 altText
@@ -169,6 +213,7 @@ export const CART_CREATE_MUTATION = /* GraphQL */ `
       cart {
         ...CartFields
       }
+
       userErrors {
         field
         message
@@ -180,11 +225,18 @@ export const CART_CREATE_MUTATION = /* GraphQL */ `
 export const CART_LINES_ADD_MUTATION = /* GraphQL */ `
   ${CART_FRAGMENT}
 
-  mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) {
+  mutation CartLinesAdd(
+    $cartId: ID!
+    $lines: [CartLineInput!]!
+  ) {
+    cartLinesAdd(
+      cartId: $cartId
+      lines: $lines
+    ) {
       cart {
         ...CartFields
       }
+
       userErrors {
         field
         message
@@ -196,11 +248,18 @@ export const CART_LINES_ADD_MUTATION = /* GraphQL */ `
 export const CART_LINES_UPDATE_MUTATION = /* GraphQL */ `
   ${CART_FRAGMENT}
 
-  mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+  mutation CartLinesUpdate(
+    $cartId: ID!
+    $lines: [CartLineUpdateInput!]!
+  ) {
+    cartLinesUpdate(
+      cartId: $cartId
+      lines: $lines
+    ) {
       cart {
         ...CartFields
       }
+
       userErrors {
         field
         message
@@ -212,11 +271,18 @@ export const CART_LINES_UPDATE_MUTATION = /* GraphQL */ `
 export const CART_LINES_REMOVE_MUTATION = /* GraphQL */ `
   ${CART_FRAGMENT}
 
-  mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
-    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+  mutation CartLinesRemove(
+    $cartId: ID!
+    $lineIds: [ID!]!
+  ) {
+    cartLinesRemove(
+      cartId: $cartId
+      lineIds: $lineIds
+    ) {
       cart {
         ...CartFields
       }
+
       userErrors {
         field
         message
