@@ -1,7 +1,12 @@
-// This file renders a controlled product carousel using the existing ProductCard and button system.
+// This file renders a responsive product carousel showing two cards on mobile.
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Product } from "@/lib/commerce/types";
 import { ProductCard } from "@/components/product/product-card";
@@ -13,31 +18,49 @@ type ProductCarouselProps = {
   ariaLabel: string;
 };
 
-export function ProductCarousel({ products, ariaLabel }: ProductCarouselProps) {
+export function ProductCarousel({
+  products,
+  ariaLabel,
+}: ProductCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollBackward, setCanScrollBackward] = useState(false);
-  const [canScrollForward, setCanScrollForward] = useState(false);
+
+  const [canScrollBackward, setCanScrollBackward] =
+    useState(false);
+
+  const [canScrollForward, setCanScrollForward] =
+    useState(false);
 
   const updateScrollState = useCallback(() => {
     const element = scrollRef.current;
 
     if (!element) return;
 
-    const maxScrollLeft = element.scrollWidth - element.clientWidth;
+    const maxScrollLeft =
+      element.scrollWidth - element.clientWidth;
 
     setCanScrollBackward(element.scrollLeft > 8);
-    setCanScrollForward(element.scrollLeft < maxScrollLeft - 8);
+
+    setCanScrollForward(
+      element.scrollLeft < maxScrollLeft - 8,
+    );
   }, []);
 
-  function scrollByDirection(direction: "backward" | "forward") {
+  function scrollByDirection(
+    direction: "backward" | "forward",
+  ) {
     const element = scrollRef.current;
 
     if (!element) return;
 
-    const scrollAmount = Math.round(element.clientWidth * 0.9);
+    const scrollAmount = Math.round(
+      element.clientWidth * 0.9,
+    );
 
     element.scrollBy({
-      left: direction === "forward" ? scrollAmount : -scrollAmount,
+      left:
+        direction === "forward"
+          ? scrollAmount
+          : -scrollAmount,
       behavior: "smooth",
     });
   }
@@ -47,15 +70,33 @@ export function ProductCarousel({ products, ariaLabel }: ProductCarouselProps) {
 
     if (!element) return;
 
-    const frame = requestAnimationFrame(updateScrollState);
+    const frame = requestAnimationFrame(
+      updateScrollState,
+    );
 
-    element.addEventListener("scroll", updateScrollState, { passive: true });
-    window.addEventListener("resize", updateScrollState);
+    element.addEventListener(
+      "scroll",
+      updateScrollState,
+      { passive: true },
+    );
+
+    window.addEventListener(
+      "resize",
+      updateScrollState,
+    );
 
     return () => {
       cancelAnimationFrame(frame);
-      element.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", updateScrollState);
+
+      element.removeEventListener(
+        "scroll",
+        updateScrollState,
+      );
+
+      window.removeEventListener(
+        "resize",
+        updateScrollState,
+      );
     };
   }, [products.length, updateScrollState]);
 
@@ -64,16 +105,16 @@ export function ProductCarousel({ products, ariaLabel }: ProductCarouselProps) {
   }
 
   return (
-    <div className="group relative overflow-hidden">
+    <div className="group relative min-w-0 overflow-hidden">
       <div
         ref={scrollRef}
         aria-label={ariaLabel}
-        className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2"
+        className="scrollbar-hide flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2 sm:gap-5"
       >
         {products.map((product) => (
           <div
             key={product.id}
-            className="shrink-0 snap-start basis-[82%] sm:basis-[48%] lg:basis-[31.5%] xl:basis-[23.5%]"
+            className="min-w-0 shrink-0 snap-start basis-[47%] sm:basis-[48%] lg:basis-[31.5%] xl:basis-[23.5%]"
           >
             <ProductCard product={product} />
           </div>
@@ -82,10 +123,15 @@ export function ProductCarousel({ products, ariaLabel }: ProductCarouselProps) {
 
       <button
         type="button"
-        onClick={() => scrollByDirection("backward")}
+        onClick={() =>
+          scrollByDirection("backward")
+        }
         disabled={!canScrollBackward}
         className={cn(
-          buttonVariants({ variant: "outline", size: "icon" }),
+          buttonVariants({
+            variant: "outline",
+            size: "icon",
+          }),
           "absolute left-2 top-1/2 z-20 hidden -translate-y-1/2 bg-background/90 shadow-[var(--shadow-card)] backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 sm:inline-flex",
         )}
         aria-label={`Scroll ${ariaLabel} backward`}
@@ -95,10 +141,15 @@ export function ProductCarousel({ products, ariaLabel }: ProductCarouselProps) {
 
       <button
         type="button"
-        onClick={() => scrollByDirection("forward")}
+        onClick={() =>
+          scrollByDirection("forward")
+        }
         disabled={!canScrollForward}
         className={cn(
-          buttonVariants({ variant: "outline", size: "icon" }),
+          buttonVariants({
+            variant: "outline",
+            size: "icon",
+          }),
           "absolute right-2 top-1/2 z-20 hidden -translate-y-1/2 bg-background/90 shadow-[var(--shadow-card)] backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 sm:inline-flex",
         )}
         aria-label={`Scroll ${ariaLabel} forward`}

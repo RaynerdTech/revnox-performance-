@@ -1,4 +1,4 @@
-// This file renders the Shopify-powered product catalog page with search, filtering, and sorting.
+// This file renders the Shopify-powered product catalog page with search, brand filtering, category filtering, availability, merchandising, and sorting.
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,6 +15,7 @@ import {
   getCategories,
   getProducts,
 } from "@/lib/commerce/catalog";
+import { buildProductBrands } from "@/lib/commerce/brands";
 import type { Product } from "@/lib/commerce/types";
 import { MobileCatalogFilter } from "@/components/product/mobile-catalog-filter";
 import { buttonVariants } from "@/components/ui/button";
@@ -28,6 +29,7 @@ type ProductsPageProps = {
   searchParams: Promise<{
     q?: string;
     category?: string;
+    brand?: string;
     featured?: string;
     bestSeller?: string;
     available?: string;
@@ -52,14 +54,15 @@ export default async function ProductsPage({
   const activeCategory =
     params.category;
 
+  const requestedBrand =
+    params.brand?.trim() || "";
+
   const activeFeatured =
     params.featured === "true";
 
   const activeAvailable =
     params.available === "true";
 
-  // Preserve compatibility with the previous
-  // /products?sort=best-selling URL.
   const activeBestSeller =
     params.bestSeller === "true" ||
     params.sort === "best-selling";
@@ -73,6 +76,9 @@ export default async function ProductsPage({
       getProducts(),
     ]);
 
+  const brands =
+    buildProductBrands(products);
+
   const activeCategoryData =
     categories.find(
       (category) =>
@@ -80,10 +86,22 @@ export default async function ProductsPage({
         activeCategory,
     ) ?? null;
 
+  const activeBrandData =
+    brands.find(
+      (brand) =>
+        normalizeValue(brand.name) ===
+        normalizeValue(requestedBrand),
+    ) ?? null;
+
+  const activeBrand =
+    activeBrandData?.name ??
+    requestedBrand;
+
   const filteredProducts =
     filterProducts(products, {
       activeSearch,
       activeCategory,
+      activeBrand,
       activeFeatured,
       activeBestSeller,
       activeAvailable,
@@ -94,15 +112,23 @@ export default async function ProductsPage({
     activeSearch,
     activeCategoryTitle:
       activeCategoryData?.title ?? null,
+    activeBrandName:
+      activeBrandData?.name ?? null,
     activeFeatured,
     activeBestSeller,
   });
 
   const pageDescription =
-    activeSearch.length > 0
-      ? `Showing catalog results for “${activeSearch}”.`
-      : activeCategoryData?.description ??
-        "Browse Shopify-powered performance parts organized for wheels, braking, suspension, exhaust, intake, and engine-focused upgrades.";
+    getPageDescription({
+      activeSearch,
+      activeCategoryTitle:
+        activeCategoryData?.title ?? null,
+      activeCategoryDescription:
+        activeCategoryData?.description ??
+        "",
+      activeBrandName:
+        activeBrandData?.name ?? null,
+    });
 
   const hasCategoryImage = Boolean(
     activeCategoryData?.image?.url,
@@ -111,6 +137,7 @@ export default async function ProductsPage({
   const hasActiveFilters = Boolean(
     activeSearch ||
       activeCategory ||
+      activeBrand ||
       activeFeatured ||
       activeBestSeller ||
       activeAvailable ||
@@ -185,6 +212,14 @@ export default async function ProductsPage({
                     />
                   ) : null}
 
+                  {activeBrand ? (
+                    <input
+                      type="hidden"
+                      name="brand"
+                      value={activeBrand}
+                    />
+                  ) : null}
+
                   {activeFeatured ? (
                     <input
                       type="hidden"
@@ -235,17 +270,21 @@ export default async function ProductsPage({
               {hasActiveFilters ? (
                 <div className="mt-8 grid w-full gap-3 sm:flex sm:flex-wrap sm:items-center">
                   {activeCategoryData ? (
-                    <div className="w-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-card)] sm:w-auto">
-                      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/60">
-                        Category products
-                      </p>
+                    <FilterSummary
+                      label="Category products"
+                      value={
+                        activeCategoryData.productCount
+                      }
+                    />
+                  ) : null}
 
-                      <p className="mt-1 text-2xl font-black tracking-[-0.05em] text-foreground">
-                        {
-                          activeCategoryData.productCount
-                        }
-                      </p>
-                    </div>
+                  {activeBrandData ? (
+                    <FilterSummary
+                      label="Brand products"
+                      value={
+                        activeBrandData.productCount
+                      }
+                    />
                   ) : null}
 
                   <Link
@@ -334,12 +373,14 @@ export default async function ProductsPage({
             <div className="hidden lg:block">
               <CatalogSidebar
                 categories={categories}
+                brands={brands}
                 activeSearch={
                   activeSearch
                 }
                 activeCategory={
                   activeCategory
                 }
+                activeBrand={activeBrand}
                 activeFeatured={
                   activeFeatured
                 }
@@ -375,8 +416,10 @@ export default async function ProductsPage({
 
       <MobileCatalogFilter
         categories={categories}
+        brands={brands}
         activeSearch={activeSearch}
         activeCategory={activeCategory}
+        activeBrand={activeBrand}
         activeFeatured={activeFeatured}
         activeBestSeller={
           activeBestSeller
@@ -388,6 +431,12 @@ export default async function ProductsPage({
       <Footer />
     </main>
   );
+}
+
+function normalizeValue(
+  value: string,
+) {
+  return value.trim().toLowerCase();
 }
 
 function getCatalogSort(
@@ -408,6 +457,7 @@ function filterProducts(
   filters: {
     activeSearch?: string;
     activeCategory?: string;
+    activeBrand?: string;
     activeFeatured?: boolean;
     activeBestSeller?: boolean;
     activeAvailable?: boolean;
@@ -432,6 +482,21 @@ function filterProducts(
         (product) =>
           product.categoryHandle ===
           filters.activeCategory,
+      );
+  }
+
+  if (filters.activeBrand) {
+    const normalizedBrand =
+      normalizeValue(
+        filters.activeBrand,
+      );
+
+    filteredProducts =
+      filteredProducts.filter(
+        (product) =>
+          normalizeValue(
+            product.brand ?? "",
+          ) === normalizedBrand,
       );
   }
 
@@ -463,7 +528,9 @@ function filterProducts(
     filters.activeSort === "price-asc"
   ) {
     filteredProducts.sort(
-      (a, b) => a.price - b.price,
+      (firstProduct, secondProduct) =>
+        firstProduct.price -
+        secondProduct.price,
     );
   }
 
@@ -471,7 +538,9 @@ function filterProducts(
     filters.activeSort === "price-desc"
   ) {
     filteredProducts.sort(
-      (a, b) => b.price - a.price,
+      (firstProduct, secondProduct) =>
+        secondProduct.price -
+        firstProduct.price,
     );
   }
 
@@ -519,16 +588,29 @@ function productMatchesSearch(
 function getPageTitle({
   activeSearch,
   activeCategoryTitle,
+  activeBrandName,
   activeFeatured,
   activeBestSeller,
 }: {
   activeSearch: string;
   activeCategoryTitle: string | null;
+  activeBrandName: string | null;
   activeFeatured: boolean;
   activeBestSeller: boolean;
 }) {
   if (activeSearch) {
     return "Search results";
+  }
+
+  if (
+    activeBrandName &&
+    activeCategoryTitle
+  ) {
+    return `${activeBrandName} ${activeCategoryTitle}`;
+  }
+
+  if (activeBrandName) {
+    return activeBrandName;
   }
 
   if (activeCategoryTitle) {
@@ -544,6 +626,59 @@ function getPageTitle({
   }
 
   return "Shop performance";
+}
+
+function getPageDescription({
+  activeSearch,
+  activeCategoryTitle,
+  activeCategoryDescription,
+  activeBrandName,
+}: {
+  activeSearch: string;
+  activeCategoryTitle: string | null;
+  activeCategoryDescription: string;
+  activeBrandName: string | null;
+}) {
+  if (activeSearch) {
+    return `Showing catalog results for “${activeSearch}”.`;
+  }
+
+  if (
+    activeBrandName &&
+    activeCategoryTitle
+  ) {
+    return `Browse ${activeBrandName} products in the ${activeCategoryTitle} category.`;
+  }
+
+  if (activeBrandName) {
+    return `Browse published ${activeBrandName} products currently available in the storefront catalog.`;
+  }
+
+  if (activeCategoryDescription) {
+    return activeCategoryDescription;
+  }
+
+  return "Browse Shopify-powered performance parts organized for wheels, braking, suspension, exhaust, intake, and engine-focused upgrades.";
+}
+
+function FilterSummary({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="w-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-card)] sm:w-auto">
+      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/60">
+        {label}
+      </p>
+
+      <p className="mt-1 text-2xl font-black tracking-[-0.05em] text-foreground">
+        {value}
+      </p>
+    </div>
+  );
 }
 
 function EmptyCatalogState({

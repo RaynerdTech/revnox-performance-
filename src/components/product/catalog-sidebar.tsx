@@ -3,10 +3,17 @@ import Link from "next/link";
 import type { ProductCategory } from "@/lib/commerce/types";
 import { cn } from "@/lib/utils/cn";
 
+type BrandOption = {
+  name: string;
+  productCount: number;
+};
+
 type CatalogSidebarProps = {
   categories: ProductCategory[];
+  brands: BrandOption[];
   activeSearch?: string;
   activeCategory?: string;
+  activeBrand?: string;
   activeFeatured?: boolean;
   activeBestSeller?: boolean;
   activeAvailable?: boolean;
@@ -16,6 +23,7 @@ type CatalogSidebarProps = {
 type CatalogFilterState = {
   q?: string;
   category?: string;
+  brand?: string;
   featured?: boolean;
   bestSeller?: boolean;
   available?: boolean;
@@ -24,21 +32,25 @@ type CatalogFilterState = {
 
 export function CatalogSidebar({
   categories,
+  brands,
   activeSearch,
   activeCategory,
+  activeBrand,
   activeFeatured,
   activeBestSeller,
   activeAvailable,
   activeSort,
 }: CatalogSidebarProps) {
-  const currentFilters: CatalogFilterState = {
-    q: activeSearch,
-    category: activeCategory,
-    featured: activeFeatured,
-    bestSeller: activeBestSeller,
-    available: activeAvailable,
-    sort: activeSort,
-  };
+  const currentFilters: CatalogFilterState =
+    {
+      q: activeSearch,
+      category: activeCategory,
+      brand: activeBrand,
+      featured: activeFeatured,
+      bestSeller: activeBestSeller,
+      available: activeAvailable,
+      sort: activeSort,
+    };
 
   return (
     <aside className="revnox-sidebar-scroll sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-[1.5rem] border border-border bg-card p-5 shadow-[var(--shadow-card)]">
@@ -74,141 +86,150 @@ export function CatalogSidebar({
         </div>
       ) : null}
 
-      <div className="mt-6 border-t border-border pt-6">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-          Categories
-        </h3>
+      <FilterSection title="Categories">
+        <FilterLink
+          href="/products"
+          active={
+            !activeSearch &&
+            !activeCategory &&
+            !activeBrand &&
+            !activeFeatured &&
+            !activeBestSeller &&
+            !activeAvailable &&
+            !activeSort
+          }
+        >
+          All products
+        </FilterLink>
 
-        <div className="mt-4 grid gap-2">
+        {categories.map((category) => (
           <FilterLink
-            href="/products"
+            key={category.id}
+            href={buildFilterHref({
+              ...currentFilters,
+              category:
+                category.handle,
+            })}
             active={
-              !activeSearch &&
-              !activeCategory &&
-              !activeFeatured &&
-              !activeBestSeller &&
-              !activeAvailable &&
-              !activeSort
+              activeCategory ===
+              category.handle
             }
           >
-            All products
-          </FilterLink>
+            <span className="min-w-0 truncate">
+              {category.title}
+            </span>
 
-          {categories.map((category) => (
+            <span className="shrink-0 text-xs opacity-75">
+              {category.productCount}
+            </span>
+          </FilterLink>
+        ))}
+      </FilterSection>
+
+      {brands.length > 0 ? (
+        <FilterSection title="Parts brands">
+          {brands.map((brand) => (
             <FilterLink
-              key={category.id}
+              key={brand.name}
               href={buildFilterHref({
                 ...currentFilters,
-                category: category.handle,
+                brand:
+                  activeBrand === brand.name
+                    ? undefined
+                    : brand.name,
               })}
               active={
-                activeCategory ===
-                category.handle
+                activeBrand === brand.name
               }
             >
-              <span>{category.title}</span>
+              <span className="min-w-0 truncate">
+                {brand.name}
+              </span>
 
-              <span className="text-xs opacity-75">
-                {category.productCount}
+              <span className="shrink-0 text-xs opacity-75">
+                {brand.productCount}
               </span>
             </FilterLink>
           ))}
-        </div>
-      </div>
+        </FilterSection>
+      ) : null}
 
-      <div className="mt-6 border-t border-border pt-6">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-          Availability
-        </h3>
+      <FilterSection title="Availability">
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            available: activeAvailable
+              ? undefined
+              : true,
+          })}
+          active={activeAvailable}
+        >
+          In stock
+        </FilterLink>
+      </FilterSection>
 
-        <div className="mt-4 grid gap-2">
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              available: activeAvailable
+      <FilterSection title="Merchandising">
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            featured: activeFeatured
+              ? undefined
+              : true,
+          })}
+          active={activeFeatured}
+        >
+          Featured
+        </FilterLink>
+
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            bestSeller:
+              activeBestSeller
                 ? undefined
                 : true,
-            })}
-            active={activeAvailable}
-          >
-            In stock
-          </FilterLink>
-        </div>
-      </div>
+          })}
+          active={activeBestSeller}
+        >
+          Best sellers
+        </FilterLink>
+      </FilterSection>
 
-      <div className="mt-6 border-t border-border pt-6">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-          Merchandising
-        </h3>
+      <FilterSection title="Sort">
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            sort: undefined,
+          })}
+          active={!activeSort}
+        >
+          Latest
+        </FilterLink>
 
-        <div className="mt-4 grid gap-2">
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              featured: activeFeatured
-                ? undefined
-                : true,
-            })}
-            active={activeFeatured}
-          >
-            Featured
-          </FilterLink>
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            sort: "price-asc",
+          })}
+          active={
+            activeSort === "price-asc"
+          }
+        >
+          Price: low to high
+        </FilterLink>
 
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              bestSeller: activeBestSeller
-                ? undefined
-                : true,
-            })}
-            active={activeBestSeller}
-          >
-            Best sellers
-          </FilterLink>
-        </div>
-      </div>
-
-      <div className="mt-6 border-t border-border pt-6">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-          Sort
-        </h3>
-
-        <div className="mt-4 grid gap-2">
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              sort: undefined,
-            })}
-            active={!activeSort}
-          >
-            Latest
-          </FilterLink>
-
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              sort: "price-asc",
-            })}
-            active={
-              activeSort === "price-asc"
-            }
-          >
-            Price: low to high
-          </FilterLink>
-
-          <FilterLink
-            href={buildFilterHref({
-              ...currentFilters,
-              sort: "price-desc",
-            })}
-            active={
-              activeSort === "price-desc"
-            }
-          >
-            Price: high to low
-          </FilterLink>
-        </div>
-      </div>
+        <FilterLink
+          href={buildFilterHref({
+            ...currentFilters,
+            sort: "price-desc",
+          })}
+          active={
+            activeSort === "price-desc"
+          }
+        >
+          Price: high to low
+        </FilterLink>
+      </FilterSection>
 
       <Link
         href="/products"
@@ -220,10 +241,31 @@ export function CatalogSidebar({
   );
 }
 
+function FilterSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mt-6 border-t border-border pt-6">
+      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+        {title}
+      </h3>
+
+      <div className="mt-4 grid gap-2">
+        {children}
+      </div>
+    </section>
+  );
+}
+
 function buildFilterHref(
   filters: CatalogFilterState,
 ) {
-  const searchParams = new URLSearchParams();
+  const searchParams =
+    new URLSearchParams();
 
   if (filters.q) {
     searchParams.set("q", filters.q);
@@ -236,8 +278,18 @@ function buildFilterHref(
     );
   }
 
+  if (filters.brand) {
+    searchParams.set(
+      "brand",
+      filters.brand,
+    );
+  }
+
   if (filters.featured) {
-    searchParams.set("featured", "true");
+    searchParams.set(
+      "featured",
+      "true",
+    );
   }
 
   if (filters.bestSeller) {
@@ -255,7 +307,10 @@ function buildFilterHref(
   }
 
   if (filters.sort) {
-    searchParams.set("sort", filters.sort);
+    searchParams.set(
+      "sort",
+      filters.sort,
+    );
   }
 
   const queryString =
@@ -279,7 +334,7 @@ function FilterLink({
     <Link
       href={href}
       className={cn(
-        "flex items-center justify-between rounded-2xl border border-border px-4 py-3 text-sm font-bold text-muted-foreground transition-colors hover:border-primary hover:text-primary",
+        "flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-border px-4 py-3 text-sm font-bold text-muted-foreground transition-colors hover:border-primary hover:text-primary",
         active &&
           "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
       )}

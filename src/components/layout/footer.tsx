@@ -1,31 +1,73 @@
-// This file defines the main storefront footer with responsive image branding, navigation, and customer-service links.
+// This file defines the storefront footer with Shopify-powered category links and customer-service navigation.
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-
-const shopLinks = [
-  { label: "Wheels", href: "/products?category=wheels" },
-  { label: "Braking", href: "/products?category=braking" },
-  { label: "Suspension", href: "/products?category=suspension" },
-  { label: "Exhaust", href: "/products?category=exhaust" },
-  { label: "Intake & Engine", href: "/products?category=intake-engine" },
-];
+import { getCategories } from "@/lib/commerce/catalog";
 
 const companyLinks = [
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-  { label: "Journal", href: "/journal" },
-  { label: "Fitment", href: "/fitment" },
+  {
+    label: "About",
+    href: "/about",
+  },
+  {
+    label: "Contact",
+    href: "/contact",
+  },
+  {
+    label: "Journal",
+    href: "/journal",
+  },
+  {
+    label: "Fitment",
+    href: "/fitment",
+  },
 ];
 
 const supportLinks = [
-  { label: "Shipping", href: "/shipping" },
-  { label: "Returns", href: "/returns" },
-  { label: "Order Status", href: "/order-status" },
-  { label: "Customer Support", href: "/contact" },
+  {
+    label: "Shipping",
+    href: "/shipping",
+  },
+  {
+    label: "Returns",
+    href: "/returns",
+  },
+  {
+    label: "Order Status",
+    href: "/order-status",
+  },
+  {
+    label: "Customer Support",
+    href: "/contact",
+  },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const categories =
+    await getCategories();
+
+  const shopLinks = [
+    {
+      label: "All products",
+      href: "/products",
+    },
+    {
+      label: "Parts brands",
+      href: "/brands",
+    },
+    ...categories
+      .slice(0, 5)
+      .map((category) => ({
+        label: category.title,
+        href: `/products?${new URLSearchParams(
+          {
+            category:
+              category.handle,
+          },
+        ).toString()}`,
+      })),
+  ];
+
   return (
     <footer className="border-t border-border bg-footer text-footer-foreground">
       <Container className="grid gap-12 py-14 lg:grid-cols-[1.15fr_2fr] lg:gap-16">
@@ -45,21 +87,36 @@ export function Footer() {
           </Link>
 
           <p className="mt-5 max-w-sm text-base font-medium leading-7 text-footer-muted">
-            Premium performance parts for drivers who care about fitment,
-            control, finish, and the buying experience.
+            Premium performance parts for
+            drivers who care about fitment,
+            control, finish, and the buying
+            experience.
           </p>
         </div>
 
         <div className="grid gap-9 sm:grid-cols-3">
-          <FooterColumn title="Shop" items={shopLinks} />
-          <FooterColumn title="Company" items={companyLinks} />
-          <FooterColumn title="Support" items={supportLinks} />
+          <FooterColumn
+            title="Shop"
+            items={shopLinks}
+          />
+
+          <FooterColumn
+            title="Company"
+            items={companyLinks}
+          />
+
+          <FooterColumn
+            title="Support"
+            items={supportLinks}
+          />
         </div>
       </Container>
 
       <Container className="border-t border-white/10 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-footer-muted">
-          © {new Date().getFullYear()} Revnox Performance. All rights reserved.
+          © {new Date().getFullYear()}{" "}
+          Revnox Performance. All rights
+          reserved.
         </p>
       </Container>
     </footer>
@@ -71,7 +128,10 @@ function FooterColumn({
   items,
 }: {
   title: string;
-  items: { label: string; href: string }[];
+  items: {
+    label: string;
+    href: string;
+  }[];
 }) {
   return (
     <div>
@@ -82,7 +142,7 @@ function FooterColumn({
       <div className="mt-5 grid gap-3.5">
         {items.map((item) => (
           <Link
-            key={item.href}
+            key={`${item.label}-${item.href}`}
             href={item.href}
             className="text-base font-medium text-footer-muted transition-colors hover:text-footer-foreground"
           >

@@ -13,10 +13,17 @@ import {
 import type { ProductCategory } from "@/lib/commerce/types";
 import { cn } from "@/lib/utils/cn";
 
+type BrandOption = {
+  name: string;
+  productCount: number;
+};
+
 type MobileCatalogFilterProps = {
   categories: ProductCategory[];
+  brands: BrandOption[];
   activeSearch?: string;
   activeCategory?: string;
+  activeBrand?: string;
   activeFeatured?: boolean;
   activeBestSeller?: boolean;
   activeAvailable?: boolean;
@@ -26,6 +33,7 @@ type MobileCatalogFilterProps = {
 type CatalogFilterState = {
   q?: string;
   category?: string;
+  brand?: string;
   featured?: boolean;
   bestSeller?: boolean;
   available?: boolean;
@@ -34,8 +42,10 @@ type CatalogFilterState = {
 
 export function MobileCatalogFilter({
   categories,
+  brands,
   activeSearch,
   activeCategory,
+  activeBrand,
   activeFeatured,
   activeBestSeller,
   activeAvailable,
@@ -44,22 +54,27 @@ export function MobileCatalogFilter({
   const [isOpen, setIsOpen] =
     useState(false);
 
-  const currentFilters: CatalogFilterState = {
-    q: activeSearch,
-    category: activeCategory,
-    featured: activeFeatured,
-    bestSeller: activeBestSeller,
-    available: activeAvailable,
-    sort: activeSort,
-  };
+  const currentFilters: CatalogFilterState =
+    {
+      q: activeSearch,
+      category: activeCategory,
+      brand: activeBrand,
+      featured: activeFeatured,
+      bestSeller: activeBestSeller,
+      available: activeAvailable,
+      sort: activeSort,
+    };
 
   useEffect(() => {
-    document.body.style.overflow = isOpen
-      ? "hidden"
-      : "";
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      isOpen ? "hidden" : "";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        previousOverflow;
     };
   }, [isOpen]);
 
@@ -67,7 +82,9 @@ export function MobileCatalogFilter({
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={() =>
+          setIsOpen(true)
+        }
         className="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-soft)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
         aria-label="Open product filters"
         aria-expanded={isOpen}
@@ -80,23 +97,25 @@ export function MobileCatalogFilter({
           "fixed inset-0 z-50 bg-black/55 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
           isOpen
             ? "visible opacity-100"
-            : "invisible opacity-0",
+            : "pointer-events-none invisible opacity-0",
         )}
-        onClick={() => setIsOpen(false)}
+        onClick={() =>
+          setIsOpen(false)
+        }
         aria-hidden="true"
       />
 
       <aside
         className={cn(
-          "revnox-sidebar-scroll fixed bottom-0 left-0 right-0 z-[60] max-h-[86vh] overflow-y-auto rounded-t-[2rem] border border-border bg-background p-5 shadow-[var(--shadow-soft)] transition-transform duration-300 lg:hidden",
+          "revnox-sidebar-scroll fixed bottom-0 left-0 right-0 z-[60] max-h-[86dvh] overflow-x-hidden overflow-y-auto rounded-t-[2rem] border border-border bg-background p-5 shadow-[var(--shadow-soft)] transition-transform duration-300 lg:hidden",
           isOpen
             ? "translate-y-0"
             : "translate-y-full",
         )}
         aria-label="Product filters"
       >
-        <div className="mb-5 flex items-center justify-between">
-          <div>
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">
               Filters
             </p>
@@ -108,8 +127,10 @@ export function MobileCatalogFilter({
 
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground"
+            onClick={() =>
+              setIsOpen(false)
+            }
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-card-foreground"
             aria-label="Close product filters"
           >
             <X className="h-5 w-5" />
@@ -122,7 +143,7 @@ export function MobileCatalogFilter({
               Search
             </p>
 
-            <p className="mt-2 text-sm font-black text-foreground">
+            <p className="mt-2 break-words text-sm font-black text-foreground">
               “{activeSearch}”
             </p>
 
@@ -131,7 +152,9 @@ export function MobileCatalogFilter({
                 ...currentFilters,
                 q: undefined,
               })}
-              onClick={() => setIsOpen(false)}
+              onClick={() =>
+                setIsOpen(false)
+              }
               className="mt-3 inline-flex text-xs font-black uppercase tracking-[0.16em] text-primary"
             >
               Clear search
@@ -145,6 +168,7 @@ export function MobileCatalogFilter({
             active={
               !activeSearch &&
               !activeCategory &&
+              !activeBrand &&
               !activeFeatured &&
               !activeBestSeller &&
               !activeAvailable &&
@@ -173,16 +197,49 @@ export function MobileCatalogFilter({
                 setIsOpen(false)
               }
             >
-              <span>
+              <span className="min-w-0 truncate">
                 {category.title}
               </span>
 
-              <span className="text-xs opacity-75">
+              <span className="shrink-0 text-xs opacity-75">
                 {category.productCount}
               </span>
             </MobileFilterLink>
           ))}
         </FilterSection>
+
+        {brands.length > 0 ? (
+          <FilterSection title="Parts brands">
+            {brands.map((brand) => (
+              <MobileFilterLink
+                key={brand.name}
+                href={buildFilterHref({
+                  ...currentFilters,
+                  brand:
+                    activeBrand ===
+                    brand.name
+                      ? undefined
+                      : brand.name,
+                })}
+                active={
+                  activeBrand ===
+                  brand.name
+                }
+                onClick={() =>
+                  setIsOpen(false)
+                }
+              >
+                <span className="min-w-0 truncate">
+                  {brand.name}
+                </span>
+
+                <span className="shrink-0 text-xs opacity-75">
+                  {brand.productCount}
+                </span>
+              </MobileFilterLink>
+            ))}
+          </FilterSection>
+        ) : null}
 
         <FilterSection title="Availability">
           <MobileFilterLink
@@ -311,8 +368,18 @@ function buildFilterHref(
     );
   }
 
+  if (filters.brand) {
+    searchParams.set(
+      "brand",
+      filters.brand,
+    );
+  }
+
   if (filters.featured) {
-    searchParams.set("featured", "true");
+    searchParams.set(
+      "featured",
+      "true",
+    );
   }
 
   if (filters.bestSeller) {
@@ -330,7 +397,10 @@ function buildFilterHref(
   }
 
   if (filters.sort) {
-    searchParams.set("sort", filters.sort);
+    searchParams.set(
+      "sort",
+      filters.sort,
+    );
   }
 
   const queryString =
@@ -377,7 +447,7 @@ function MobileFilterLink({
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-sm font-black uppercase tracking-[0.14em] text-card-foreground transition-colors hover:border-primary hover:text-primary",
+        "flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4 text-sm font-black uppercase tracking-[0.14em] text-card-foreground transition-colors hover:border-primary hover:text-primary",
         active &&
           "border-primary bg-primary text-primary-foreground hover:text-primary-foreground",
       )}

@@ -1,4 +1,4 @@
-// This file defines the main storefront header with responsive image branding, global search, navigation, inline cart count, mobile controls, and theme controls.
+// This file defines the responsive storefront header with centered desktop navigation.
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
@@ -21,15 +21,19 @@ const navItems = [
 ];
 
 export async function Header() {
-  const [cart, products] = await Promise.all([getCurrentCart(), getProducts()]);
+  const [cart, products] = await Promise.all([
+    getCurrentCart(),
+    getProducts(),
+  ]);
+
   const cartQuantity = cart?.totalQuantity ?? 0;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
-      <Container className="relative flex h-16 items-center justify-between gap-2 sm:h-20 sm:gap-4">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 backdrop-blur-xl">
+      <Container className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:h-20 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <Link
           href="/"
-          className="flex min-w-0 shrink-0 items-center"
+          className="min-w-0 shrink-0 justify-self-start"
           aria-label="Go to Revnox Performance homepage"
         >
           <Image
@@ -38,7 +42,7 @@ export async function Header() {
             width={220}
             height={78}
             priority
-            className="block h-auto w-[104px] object-contain dark:hidden sm:w-[160px]"
+            className="block h-auto w-[96px] object-contain dark:hidden sm:w-[138px] xl:w-[150px]"
           />
 
           <Image
@@ -47,32 +51,37 @@ export async function Header() {
             width={220}
             height={78}
             priority
-            className="hidden h-auto w-[104px] object-contain dark:block sm:w-[160px]"
+            className="hidden h-auto w-[96px] object-contain dark:block sm:w-[138px] xl:w-[150px]"
           />
         </Link>
 
-        <nav className="hidden items-center gap-8 text-xs font-black uppercase tracking-[0.18em] text-foreground/65 lg:flex">
+        <nav className="hidden items-center justify-center gap-4 text-[10px] font-black uppercase tracking-[0.14em] text-foreground/65 xl:flex 2xl:gap-6 2xl:text-[11px]">
           {navItems.map((item) => (
             <Link
               key={item.href}
-              className="transition-colors hover:text-foreground"
               href={item.href}
+              className="whitespace-nowrap transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+        <div className="flex min-w-0 shrink-0 items-center gap-1.5 justify-self-end sm:gap-2 lg:gap-3">
           <HeaderSearch products={products} />
 
-          <ThemeToggle />
+          <div className="hidden lg:block">
+            <ThemeToggle />
+          </div>
 
           <Link
             href="/cart"
             className={cn(
-              buttonVariants({ variant: "primary", size: "md" }),
-              "relative h-10 w-10 px-0 sm:h-11 sm:w-auto sm:px-5",
+              buttonVariants({
+                variant: "primary",
+                size: "md",
+              }),
+              "relative h-10 w-10 shrink-0 px-0 sm:h-11 sm:w-11 2xl:w-auto 2xl:px-4",
             )}
             aria-label={
               cartQuantity > 0
@@ -82,10 +91,12 @@ export async function Header() {
           >
             <ShoppingBag className="h-4 w-4" />
 
-            <span className="hidden sm:inline">Cart</span>
+            <span className="hidden 2xl:inline">
+              Cart
+            </span>
 
             {cartQuantity > 0 ? (
-              <span className="absolute -right-2 -top-2 inline-flex min-w-6 items-center justify-center rounded-full border border-primary bg-background px-1.5 py-0.5 text-[10px] font-black leading-none !text-foreground shadow-[var(--shadow-card)] sm:static sm:ml-1 sm:border-0 sm:bg-primary-foreground/14 sm:!text-primary-foreground sm:shadow-none">
+              <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full border border-primary bg-background px-1 py-0.5 text-[9px] font-black leading-none !text-foreground shadow-[var(--shadow-card)] 2xl:static 2xl:ml-1 2xl:min-w-6 2xl:border-0 2xl:bg-primary-foreground/14 2xl:px-1.5 2xl:text-[10px] 2xl:!text-primary-foreground 2xl:shadow-none">
                 {cartQuantity}
               </span>
             ) : null}
