@@ -1,7 +1,9 @@
-// This file maps Shopify Storefront API product and collection data into storefront commerce types.
+// This file maps Shopify Storefront API product and collection data into
+// storefront commerce types.
 import "server-only";
 
 import type {
+  BrandProfile,
   Product,
   ProductBadge,
   ProductCategory,
@@ -30,6 +32,13 @@ type ShopifyImage = {
   height?: number;
 };
 
+type ShopifyReferencedImage = {
+  url: string;
+  altText: string | null;
+  width?: number;
+  height?: number;
+};
+
 type ShopifySelectedOption = {
   name: string;
   value: string;
@@ -47,6 +56,47 @@ type ShopifyVariant = {
   compareAtPrice?: ShopifyMoney | null;
 };
 
+type ShopifyTextField = {
+  value: string | null;
+} | null;
+
+type ShopifyMediaImageReference = {
+  __typename: "MediaImage";
+  id: string;
+  alt: string | null;
+  image: ShopifyReferencedImage | null;
+};
+
+type ShopifyGenericFileReference = {
+  __typename: "GenericFile";
+  id: string;
+  alt: string | null;
+  mimeType: string | null;
+  url: string | null;
+};
+
+type ShopifyLogoField = {
+  reference:
+    | ShopifyMediaImageReference
+    | ShopifyGenericFileReference
+    | null;
+} | null;
+
+type ShopifyBrandProfileReference = {
+  id: string;
+  handle: string;
+  type: string;
+  brandName: ShopifyTextField;
+  logo: ShopifyLogoField;
+  brandDescription: ShopifyTextField;
+  website: ShopifyTextField;
+  active: ShopifyTextField;
+};
+
+type ShopifyBrandProfileMetafield = {
+  reference: ShopifyBrandProfileReference | null;
+} | null;
+
 type ShopifyProduct = {
   id: string;
   title: string;
@@ -54,6 +104,7 @@ type ShopifyProduct = {
   description: string;
   vendor: string;
   tags: string[];
+  brandProfile: ShopifyBrandProfileMetafield;
   featuredImage: ShopifyImage | null;
 
   images: {
@@ -183,7 +234,8 @@ function mapImage(
   return {
     id: image.id,
     url: image.url,
-    altText: image.altText ?? fallbackAlt,
+    altText:
+      image.altText ?? fallbackAlt,
     width: image.width,
     height: image.height,
   };
@@ -202,11 +254,15 @@ function mapVariant(
   variant: ShopifyVariant,
   productTitle: string,
 ): ProductVariant {
-  const price = Number(variant.price.amount);
+  const price = Number(
+    variant.price.amount,
+  );
 
   const compareAtPrice =
     variant.compareAtPrice
-      ? Number(variant.compareAtPrice.amount)
+      ? Number(
+          variant.compareAtPrice.amount,
+        )
       : undefined;
 
   return {
@@ -238,22 +294,138 @@ function mapVariant(
   };
 }
 
+function getOptionalValue(
+  field: ShopifyTextField,
+) {
+  const value = field?.value?.trim();
+
+  return value || undefined;
+}
+
+function mapBrandLogo(
+  field: ShopifyLogoField,
+  brandName: string,
+): ProductImage | undefined {
+  const reference = field?.reference;
+
+  if (!reference) {
+    return undefined;
+  }
+
+  if (
+    reference.__typename ===
+      "MediaImage" &&
+    reference.image
+  ) {
+    return {
+      id: reference.id,
+      url: reference.image.url,
+      altText:
+        reference.image.altText ??
+        reference.alt ??
+        `${brandName} logo`,
+      width: reference.image.width,
+      height: reference.image.height,
+    };
+  }
+
+  if (
+    reference.__typename ===
+      "GenericFile" &&
+    reference.url &&
+    reference.mimeType?.startsWith(
+      "image/",
+    )
+  ) {
+    return {
+      id: reference.id,
+      url: reference.url,
+      altText:
+        reference.alt ??
+        `${brandName} logo`,
+    };
+  }
+
+  return undefined;
+}
+
+function mapBrandProfile(
+  metafield: ShopifyBrandProfileMetafield,
+): BrandProfile | undefined {
+  const reference =
+    metafield?.reference;
+
+  if (
+    !reference ||
+    reference.type !== "brand_profile"
+  ) {
+    return undefined;
+  }
+
+  const name = getOptionalValue(
+    reference.brandName,
+  );
+
+  if (!name) {
+    return undefined;
+  }
+
+  const active =
+    getOptionalValue(
+      reference.active,
+    )?.toLowerCase() === "true";
+
+  return {
+    id: reference.id,
+    handle: reference.handle,
+    name,
+    logo: mapBrandLogo(
+      reference.logo,
+      name,
+    ),
+    description: getOptionalValue(
+      reference.brandDescription,
+    ),
+    website: getOptionalValue(
+      reference.website,
+    ),
+    active,
+  };
+}
+
 function mapShopifyProduct(
   product: ShopifyProduct,
 ): Product {
   const primaryCollection =
     product.collections.nodes[0];
 
+  const mappedBrandProfile =
+    mapBrandProfile(
+      product.brandProfile,
+    );
+
+  const activeBrandProfile =
+    mappedBrandProfile?.active
+      ? mappedBrandProfile
+      : undefined;
+
   const variants =
     product.variants.nodes.map(
       (variant) =>
-        mapVariant(variant, product.title),
+        mapVariant(
+          variant,
+          product.title,
+        ),
     );
 
   const images =
     product.images.nodes.length > 0
-      ? product.images.nodes.map((image) =>
-          mapImage(image, product.title),
+      ? product.images.nodes.map(
+          (image) =>
+            mapImage(
+              image,
+              product.title,
+            ),
         )
       : product.featuredImage
         ? [
@@ -272,36 +444,53 @@ function mapShopifyProduct(
       primaryCollection?.title ?? "",
     categoryHandle:
       primaryCollection?.handle ?? "",
-    brand: product.vendor,
+
+    brand:
+      activeBrandProfile?.name ?? "",
+
+    brandProfile:
+      activeBrandProfile,
+
     description: product.description,
+
     price: Number(
       product.priceRange.minVariantPrice
         .amount,
     ),
+
     compareAtPrice:
       getCompareAtPrice(product),
+
     currencyCode:
       product.priceRange.minVariantPrice
         .currencyCode,
+
     image:
       product.featuredImage?.url ??
       images[0]?.url ??
       "/images/product-wheel-dark.svg",
+
     imageAlt:
       product.featuredImage?.altText ??
       product.title,
+
     images,
     variants,
-    availableForSale: variants.some(
-      (variant) =>
-        variant.availableForSale,
-    ),
+
+    availableForSale:
+      variants.some(
+        (variant) =>
+          variant.availableForSale,
+      ),
+
     badge: getProductBadge(product),
     tags: product.tags,
+
     isBestSeller: hasTag(
       product,
       "best-seller",
     ),
+
     isFeatured: hasTag(
       product,
       "featured",
@@ -332,7 +521,8 @@ export async function getShopifyFeaturedProducts() {
 
   return products
     .filter(
-      (product) => product.isFeatured,
+      (product) =>
+        product.isFeatured,
     )
     .slice(0, 8);
 }
@@ -343,7 +533,8 @@ export async function getShopifyBestSellingProducts() {
 
   return products
     .filter(
-      (product) => product.isBestSeller,
+      (product) =>
+        product.isBestSeller,
     )
     .slice(0, 8);
 }
@@ -355,7 +546,8 @@ export async function getShopifyProductByHandle(
     ProductByHandleResponse,
     { handle: string }
   >({
-    query: PRODUCT_BY_HANDLE_QUERY,
+    query:
+      PRODUCT_BY_HANDLE_QUERY,
     variables: { handle },
     revalidate: 300,
   });

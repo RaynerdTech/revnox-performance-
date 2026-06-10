@@ -1,4 +1,5 @@
-// This file defines shared commerce types used by products, collections, variants, cart, and checkout.
+// This file defines shared commerce types used by products, collections,
+// variants, cart, and checkout.
 export type ProductBadge =
   | "Best Seller"
   | "Featured"
@@ -27,6 +28,16 @@ export type ProductImage = {
   height?: number;
 };
 
+export type BrandProfile = {
+  id: string;
+  handle: string;
+  name: string;
+  logo?: ProductImage;
+  description?: string;
+  website?: string;
+  active: boolean;
+};
+
 export type ProductOptionSelection = {
   name: string;
   value: string;
@@ -51,7 +62,11 @@ export type Product = {
   handle: string;
   category: string;
   categoryHandle: string;
+
+  // This comes from the direct custom.brand_profile reference.
   brand: string;
+  brandProfile?: BrandProfile;
+
   description: string;
   price: number;
   compareAtPrice?: number;

@@ -1,11 +1,15 @@
-// This file derives dynamic parts-brand data from normalized Shopify products.
-import type { Product } from "@/lib/commerce/types";
+// This file derives storefront brand data from direct Shopify Brand Profile
+// references.
+import type {
+  BrandProfile,
+  Product,
+} from "@/lib/commerce/types";
 import { getProducts } from "@/lib/commerce/catalog";
 
-export type ProductBrand = {
-  name: string;
-  productCount: number;
-};
+export type ProductBrand =
+  BrandProfile & {
+    productCount: number;
+  };
 
 export function buildProductBrands(
   products: Product[],
@@ -16,26 +20,23 @@ export function buildProductBrands(
   >();
 
   for (const product of products) {
-    const brandName =
-      product.brand?.trim();
+    const profile =
+      product.brandProfile;
 
-    if (!brandName) {
+    if (!profile?.active) {
       continue;
     }
 
-    const normalizedName =
-      brandName.toLowerCase();
-
     const existingBrand =
-      brands.get(normalizedName);
+      brands.get(profile.id);
 
     if (existingBrand) {
       existingBrand.productCount += 1;
       continue;
     }
 
-    brands.set(normalizedName, {
-      name: brandName,
+    brands.set(profile.id, {
+      ...profile,
       productCount: 1,
     });
   }
@@ -54,7 +55,8 @@ export function buildProductBrands(
 }
 
 export async function getBrands() {
-  const products = await getProducts();
+  const products =
+    await getProducts();
 
   return buildProductBrands(products);
 }

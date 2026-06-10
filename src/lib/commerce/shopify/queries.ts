@@ -1,4 +1,5 @@
-// This file stores Shopify Storefront API GraphQL queries used by the commerce gateway.
+// This file stores Shopify Storefront API GraphQL queries used by the
+// commerce gateway.
 export const PRODUCT_FRAGMENT = /* GraphQL */ `
   fragment ProductFields on Product {
     id
@@ -8,6 +9,60 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
     vendor
     tags
 
+    brandProfile: metafield(
+      namespace: "custom"
+      key: "brand_profile"
+    ) {
+      reference {
+        ... on Metaobject {
+          id
+          handle
+          type
+
+          brandName: field(key: "brand_name") {
+            value
+          }
+
+          logo: field(key: "logo") {
+            reference {
+              __typename
+
+              ... on MediaImage {
+                id
+                alt
+
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+
+              ... on GenericFile {
+                id
+                alt
+                mimeType
+                url
+              }
+            }
+          }
+
+          brandDescription: field(key: "description") {
+            value
+          }
+
+          website: field(key: "website") {
+            value
+          }
+
+          active: field(key: "active") {
+            value
+          }
+        }
+      }
+    }
+
     featuredImage {
       id
       url
@@ -16,7 +71,7 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
       height
     }
 
-    images(first: 12) {
+    images(first: 8) {
       nodes {
         id
         url
@@ -42,17 +97,17 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
         quantityAvailable
         sku
 
-        selectedOptions {
-          name
-          value
-        }
-
         image {
           id
           url
           altText
           width
           height
+        }
+
+        selectedOptions {
+          name
+          value
         }
 
         price {
@@ -252,7 +307,7 @@ export const CART_LINES_UPDATE_MUTATION = /* GraphQL */ `
     $cartId: ID!
     $lines: [CartLineUpdateInput!]!
   ) {
-    cartLinesUpdate(
+    cartLinesUpdate( 
       cartId: $cartId
       lines: $lines
     ) {

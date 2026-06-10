@@ -1,4 +1,6 @@
-// This file renders the Shopify-powered product catalog page with search, brand filtering, category filtering, availability, merchandising, and sorting.
+// This file renders the Shopify-powered product catalog page with
+// intent-aware search, brand filtering, category filtering, availability,
+// merchandising, and sorting.
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -17,6 +19,10 @@ import {
 } from "@/lib/commerce/catalog";
 import { buildProductBrands } from "@/lib/commerce/brands";
 import type { Product } from "@/lib/commerce/types";
+import {
+  searchProducts,
+  type SearchInterpretation,
+} from "@/lib/search/product-search";
 import { MobileCatalogFilter } from "@/components/product/mobile-catalog-filter";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -35,6 +41,13 @@ type ProductsPageProps = {
     available?: string;
     sort?: string;
   }>;
+};
+
+type FilterProductsResult = {
+  products: Product[];
+  searchInterpretation:
+    | SearchInterpretation
+    | null;
 };
 
 export const metadata = {
@@ -89,31 +102,39 @@ export default async function ProductsPage({
   const activeBrandData =
     brands.find(
       (brand) =>
-        normalizeValue(brand.name) ===
-        normalizeValue(requestedBrand),
+        normalizeValue(
+          brand.name,
+        ) ===
+        normalizeValue(
+          requestedBrand,
+        ),
     ) ?? null;
 
   const activeBrand =
     activeBrandData?.name ??
     requestedBrand;
 
-  const filteredProducts =
-    filterProducts(products, {
-      activeSearch,
-      activeCategory,
-      activeBrand,
-      activeFeatured,
-      activeBestSeller,
-      activeAvailable,
-      activeSort,
-    });
+  const {
+    products: filteredProducts,
+    searchInterpretation,
+  } = filterProducts(products, {
+    activeSearch,
+    activeCategory,
+    activeBrand,
+    activeFeatured,
+    activeBestSeller,
+    activeAvailable,
+    activeSort,
+  });
 
   const pageTitle = getPageTitle({
     activeSearch,
     activeCategoryTitle:
-      activeCategoryData?.title ?? null,
+      activeCategoryData?.title ??
+      null,
     activeBrandName:
-      activeBrandData?.name ?? null,
+      activeBrandData?.name ??
+      null,
     activeFeatured,
     activeBestSeller,
   });
@@ -122,27 +143,33 @@ export default async function ProductsPage({
     getPageDescription({
       activeSearch,
       activeCategoryTitle:
-        activeCategoryData?.title ?? null,
+        activeCategoryData?.title ??
+        null,
       activeCategoryDescription:
         activeCategoryData?.description ??
         "",
       activeBrandName:
-        activeBrandData?.name ?? null,
+        activeBrandData?.name ??
+        null,
+      searchInterpretation,
     });
 
-  const hasCategoryImage = Boolean(
-    activeCategoryData?.image?.url,
-  );
+  const hasCategoryImage =
+    Boolean(
+      activeCategoryData?.image
+        ?.url,
+    );
 
-  const hasActiveFilters = Boolean(
-    activeSearch ||
-      activeCategory ||
-      activeBrand ||
-      activeFeatured ||
-      activeBestSeller ||
-      activeAvailable ||
-      activeSort,
-  );
+  const hasActiveFilters =
+    Boolean(
+      activeSearch ||
+        activeCategory ||
+        activeBrand ||
+        activeFeatured ||
+        activeBestSeller ||
+        activeAvailable ||
+        activeSort,
+    );
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -216,7 +243,9 @@ export default async function ProductsPage({
                     <input
                       type="hidden"
                       name="brand"
-                      value={activeBrand}
+                      value={
+                        activeBrand
+                      }
                     />
                   ) : null}
 
@@ -248,7 +277,9 @@ export default async function ProductsPage({
                     <input
                       type="hidden"
                       name="sort"
-                      value={activeSort}
+                      value={
+                        activeSort
+                      }
                     />
                   ) : null}
 
@@ -256,7 +287,8 @@ export default async function ProductsPage({
                     type="submit"
                     className={cn(
                       buttonVariants({
-                        variant: "primary",
+                        variant:
+                          "primary",
                         size: "md",
                       }),
                       "w-full sm:w-auto",
@@ -303,12 +335,12 @@ export default async function ProductsPage({
               <div className="relative min-h-[260px] overflow-hidden border border-border bg-card shadow-[var(--shadow-soft)] sm:min-h-[340px] lg:min-h-[360px]">
                 <Image
                   src={
-                    activeCategoryData.image
-                      .url
+                    activeCategoryData
+                      .image.url
                   }
                   alt={
-                    activeCategoryData.image
-                      .altText ||
+                    activeCategoryData
+                      .image.altText ||
                     activeCategoryData.title
                   }
                   fill
@@ -344,7 +376,9 @@ export default async function ProductsPage({
           <p className="text-sm font-bold text-foreground/70">
             Showing{" "}
             <span className="font-black text-foreground">
-              {filteredProducts.length}
+              {
+                filteredProducts.length
+              }
             </span>{" "}
             of{" "}
             <span className="font-black text-foreground">
@@ -362,7 +396,8 @@ export default async function ProductsPage({
           <div className="hidden items-center gap-2 border border-border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-foreground/65 lg:flex">
             <SlidersHorizontal className="h-4 w-4 text-primary" />
 
-            Server-rendered Shopify catalog
+            Server-rendered Shopify
+            catalog
           </div>
         </Container>
       </section>
@@ -372,7 +407,9 @@ export default async function ProductsPage({
           <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
             <div className="hidden lg:block">
               <CatalogSidebar
-                categories={categories}
+                categories={
+                  categories
+                }
                 brands={brands}
                 activeSearch={
                   activeSearch
@@ -380,7 +417,9 @@ export default async function ProductsPage({
                 activeCategory={
                   activeCategory
                 }
-                activeBrand={activeBrand}
+                activeBrand={
+                  activeBrand
+                }
                 activeFeatured={
                   activeFeatured
                 }
@@ -390,7 +429,9 @@ export default async function ProductsPage({
                 activeAvailable={
                   activeAvailable
                 }
-                activeSort={activeSort}
+                activeSort={
+                  activeSort
+                }
               />
             </div>
 
@@ -407,6 +448,9 @@ export default async function ProductsPage({
                   activeSearch={
                     activeSearch
                   }
+                  searchInterpretation={
+                    searchInterpretation
+                  }
                 />
               )}
             </div>
@@ -418,13 +462,19 @@ export default async function ProductsPage({
         categories={categories}
         brands={brands}
         activeSearch={activeSearch}
-        activeCategory={activeCategory}
+        activeCategory={
+          activeCategory
+        }
         activeBrand={activeBrand}
-        activeFeatured={activeFeatured}
+        activeFeatured={
+          activeFeatured
+        }
         activeBestSeller={
           activeBestSeller
         }
-        activeAvailable={activeAvailable}
+        activeAvailable={
+          activeAvailable
+        }
         activeSort={activeSort}
       />
 
@@ -436,7 +486,9 @@ export default async function ProductsPage({
 function normalizeValue(
   value: string,
 ) {
-  return value.trim().toLowerCase();
+  return value
+    .trim()
+    .toLowerCase();
 }
 
 function getCatalogSort(
@@ -463,18 +515,10 @@ function filterProducts(
     activeAvailable?: boolean;
     activeSort?: CatalogSort;
   },
-) {
-  let filteredProducts = [...products];
-
-  if (filters.activeSearch) {
-    filteredProducts =
-      filteredProducts.filter((product) =>
-        productMatchesSearch(
-          product,
-          filters.activeSearch ?? "",
-        ),
-      );
-  }
+): FilterProductsResult {
+  let filteredProducts = [
+    ...products,
+  ];
 
   if (filters.activeCategory) {
     filteredProducts =
@@ -508,7 +552,9 @@ function filterProducts(
       );
   }
 
-  if (filters.activeBestSeller) {
+  if (
+    filters.activeBestSeller
+  ) {
     filteredProducts =
       filteredProducts.filter(
         (product) =>
@@ -516,7 +562,9 @@ function filterProducts(
       );
   }
 
-  if (filters.activeAvailable) {
+  if (
+    filters.activeAvailable
+  ) {
     filteredProducts =
       filteredProducts.filter(
         (product) =>
@@ -524,65 +572,59 @@ function filterProducts(
       );
   }
 
+  let searchInterpretation:
+    | SearchInterpretation
+    | null = null;
+
+  if (filters.activeSearch) {
+    const searchResponse =
+      searchProducts(
+        filteredProducts,
+        filters.activeSearch,
+      );
+
+    filteredProducts =
+      searchResponse.results.map(
+        (result) =>
+          result.product,
+      );
+
+    searchInterpretation =
+      searchResponse.interpretation;
+  }
+
   if (
-    filters.activeSort === "price-asc"
+    filters.activeSort ===
+    "price-asc"
   ) {
     filteredProducts.sort(
-      (firstProduct, secondProduct) =>
+      (
+        firstProduct,
+        secondProduct,
+      ) =>
         firstProduct.price -
         secondProduct.price,
     );
   }
 
   if (
-    filters.activeSort === "price-desc"
+    filters.activeSort ===
+    "price-desc"
   ) {
     filteredProducts.sort(
-      (firstProduct, secondProduct) =>
+      (
+        firstProduct,
+        secondProduct,
+      ) =>
         secondProduct.price -
         firstProduct.price,
     );
   }
 
-  return filteredProducts;
-}
-
-function productMatchesSearch(
-  product: Product,
-  query: string,
-) {
-  const terms = query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (terms.length === 0) {
-    return true;
-  }
-
-  const searchableText = [
-    product.title,
-    product.description,
-    product.category,
-    product.categoryHandle,
-    product.brand,
-    product.tags.join(" "),
-    product.variants
-      .map(
-        (variant) =>
-          `${variant.title} ${
-            variant.sku ?? ""
-          }`,
-      )
-      .join(" "),
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return terms.every((term) =>
-    searchableText.includes(term),
-  );
+  return {
+    products: filteredProducts,
+    searchInterpretation,
+  };
 }
 
 function getPageTitle({
@@ -593,8 +635,12 @@ function getPageTitle({
   activeBestSeller,
 }: {
   activeSearch: string;
-  activeCategoryTitle: string | null;
-  activeBrandName: string | null;
+  activeCategoryTitle:
+    | string
+    | null;
+  activeBrandName:
+    | string
+    | null;
   activeFeatured: boolean;
   activeBestSeller: boolean;
 }) {
@@ -633,14 +679,54 @@ function getPageDescription({
   activeCategoryTitle,
   activeCategoryDescription,
   activeBrandName,
+  searchInterpretation,
 }: {
   activeSearch: string;
-  activeCategoryTitle: string | null;
+  activeCategoryTitle:
+    | string
+    | null;
   activeCategoryDescription: string;
-  activeBrandName: string | null;
+  activeBrandName:
+    | string
+    | null;
+  searchInterpretation:
+    | SearchInterpretation
+    | null;
 }) {
   if (activeSearch) {
-    return `Showing catalog results for “${activeSearch}”.`;
+    const messages = [
+      `Showing ranked catalog results for “${activeSearch}”.`,
+    ];
+
+    if (
+      searchInterpretation
+        ?.correctedTerms.length
+    ) {
+      messages.push(
+        `Interpreted ${searchInterpretation.correctedTerms
+          .map(
+            (correction) =>
+              `“${correction.from}” as “${correction.to}”`,
+          )
+          .join(", ")}.`,
+      );
+    }
+
+    const vehicleText = [
+      searchInterpretation?.year,
+      searchInterpretation
+        ?.vehicleMake,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    if (vehicleText) {
+      messages.push(
+        `Vehicle intent detected: ${vehicleText}. Compatibility is not yet verified.`,
+      );
+    }
+
+    return messages.join(" ");
   }
 
   if (
@@ -654,7 +740,9 @@ function getPageDescription({
     return `Browse published ${activeBrandName} products currently available in the storefront catalog.`;
   }
 
-  if (activeCategoryDescription) {
+  if (
+    activeCategoryDescription
+  ) {
     return activeCategoryDescription;
   }
 
@@ -683,9 +771,22 @@ function FilterSummary({
 
 function EmptyCatalogState({
   activeSearch,
+  searchInterpretation,
 }: {
   activeSearch: string;
+  searchInterpretation:
+    | SearchInterpretation
+    | null;
 }) {
+  const searchedOnlyByVehicle =
+    Boolean(
+      activeSearch &&
+        searchInterpretation &&
+        searchInterpretation
+          .searchableTerms.length ===
+          0,
+    );
+
   return (
     <div className="border border-border bg-card p-10 text-center shadow-[var(--shadow-card)]">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">
@@ -697,9 +798,11 @@ function EmptyCatalogState({
       </h2>
 
       <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-6 text-foreground/70">
-        {activeSearch
-          ? `No published storefront products matched “${activeSearch}”.`
-          : "This filter does not currently match any published Shopify products in the storefront catalog."}
+        {searchedOnlyByVehicle
+          ? "Add a product, category, brand, or part number to the vehicle search. Vehicle-only fitment search will be enabled when verified fitment data is available."
+          : activeSearch
+            ? `No published storefront products matched “${activeSearch}”.`
+            : "This filter does not currently match any published Shopify products in the storefront catalog."}
       </p>
 
       <Link
