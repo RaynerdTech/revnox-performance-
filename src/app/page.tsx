@@ -1,22 +1,18 @@
-// This file renders the Revnox Performance homepage using Shopify-powered category, featured, and best-selling product data.
+// This file renders the Revnox Performance homepage using Shopify-powered category, brand, featured, and best-selling product data.
+import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ShieldCheck,
-  Truck,
-  Wrench,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Truck, Wrench, Zap } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Container } from "@/components/ui/container";
 import { Marquee } from "@/components/ui/marquee";
 import { buttonVariants } from "@/components/ui/button";
 import { ProductGrid } from "@/components/product/product-grid";
-import { getHomepageCatalog } from "@/lib/commerce/catalog";
-import { cn } from "@/lib/utils/cn";
 import { ProductCarousel } from "@/components/product/product-carousel";
 import { HomeCategoryShowcase } from "@/components/home/home-category-showcase";
+import { getHomepageCatalog } from "@/lib/commerce/catalog";
+import { getBrands, type ProductBrand } from "@/lib/commerce/brands";
+import { cn } from "@/lib/utils/cn";
 
 const trustSignals = [
   {
@@ -26,7 +22,7 @@ const trustSignals = [
   },
   {
     title: "Expert support",
-    description: "Real automotive support. Real fitment confidence.",
+    description: "Real automotive support for informed product decisions.",
     icon: Wrench,
   },
   {
@@ -41,36 +37,69 @@ const trustSignals = [
   },
 ];
 
+const shopWays = [
+  {
+    title: "Shop by category",
+    description:
+      "Browse braking, suspension, exhaust, intake, wheels, and more.",
+    href: "/products",
+  },
+  {
+    title: "Shop by brand",
+    description: "Find products from connected parts manufacturers.",
+    href: "/brands",
+  },
+  {
+    title: "Search by part",
+    description:
+      "Use product names, SKUs, brands, and common automotive terms.",
+    href: "/products",
+  },
+];
+
 const buildPaths = [
   {
-    title: "Street Performance",
+    title: "Stop better",
     description:
-      "Daily-ready upgrades with sharper response, cleaner fitment, and durable component choices.",
+      "Start with braking upgrades for stronger, more confident control.",
+    href: "/products?q=brake",
   },
   {
-    title: "Track Intent",
+    title: "Improve handling",
     description:
-      "Focused parts for braking confidence, wheel control, airflow, and repeatable performance.",
+      "Explore suspension parts built for sharper road feel and stability.",
+    href: "/products?q=suspension",
   },
   {
-    title: "Luxury OEM+",
+    title: "Upgrade sound",
     description:
-      "Refined upgrades that preserve a clean factory feel while improving presence and capability.",
+      "Browse exhaust-focused parts for a stronger performance tone.",
+    href: "/products?q=exhaust",
+  },
+  {
+    title: "Improve airflow",
+    description: "Find intake and engine airflow upgrades for better response.",
+    href: "/products?q=intake",
   },
 ];
 
 export default async function Home() {
+  const [homepageCatalog, brands] = await Promise.all([
+    getHomepageCatalog(),
+    getBrands(),
+  ]);
+
   const {
     categories,
     featuredProducts,
     bestSellingProducts,
     categoryProductSections,
-  } = await getHomepageCatalog();
+  } = homepageCatalog;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="border-b border-border bg-secondary text-secondary-foreground">
-        <Container className="flex items-center justify-center py-2 text-center text-[10px] font-semibold uppercase tracking-[0.24em]">
+        <Container className="flex items-center justify-center py-2 text-center text-[11px] font-semibold uppercase tracking-[0.24em]">
           Premium performance parts for serious builds
         </Container>
       </section>
@@ -114,7 +143,9 @@ export default async function Home() {
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/products"
-                  className={cn(buttonVariants({ variant: "primary", size: "lg" }))}
+                  className={cn(
+                    buttonVariants({ variant: "primary", size: "lg" }),
+                  )}
                 >
                   Shop now
                 </Link>
@@ -132,24 +163,25 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="grid border-t border-border bg-background/85 backdrop-blur-md sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid border-t border-border bg-background/70 backdrop-blur-sm sm:grid-cols-2 lg:grid-cols-4">
             {trustSignals.map((signal) => {
               const Icon = signal.icon;
 
               return (
                 <div
                   key={signal.title}
-                  className="flex items-center gap-5 border-b border-border px-5 py-6 last:border-b-0 sm:px-7 sm:py-7 sm:last:border-b lg:border-b-0 lg:border-r lg:last:border-r-0"
+                  className="flex items-center gap-4 border-b border-border px-4 py-5 last:border-b-0 sm:px-6 sm:last:border-b lg:border-b-0 lg:border-r lg:last:border-r-0"
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary sm:h-15 sm:w-15">
-                    <Icon className="h-6 w-6" />
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
                   </div>
 
                   <div>
-                    <h2 className="text-sm font-black uppercase leading-tight tracking-[0.16em] text-foreground">
+                    <h2 className="text-xs font-black uppercase tracking-[0.16em] text-foreground">
                       {signal.title}
                     </h2>
-                    <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-foreground/75">
+
+                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
                       {signal.description}
                     </p>
                   </div>
@@ -160,7 +192,64 @@ export default async function Home() {
         </Container>
       </section>
 
+      <section className="border-b border-border bg-background py-14 sm:py-16">
+        <Container>
+          <SectionHeader
+            eyebrow="Ways to shop"
+            title="Start where it makes sense."
+            href="/products"
+            linkLabel="Open catalog"
+          />
+
+          <div className="grid gap-3 sm:grid-cols-3 sm:gap-5">
+            {shopWays.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="group border border-border bg-card p-5 shadow-[var(--shadow-card)] transition-colors hover:border-primary sm:p-6"
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                  Shop
+                </p>
+
+                <h2 className="mt-3 text-2xl font-black uppercase leading-none tracking-[-0.05em] transition-colors group-hover:text-primary">
+                  {item.title}
+                </h2>
+
+                <p className="mt-3 text-sm font-medium leading-6 text-foreground/68">
+                  {item.description}
+                </p>
+
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-foreground/55 transition-colors group-hover:text-primary">
+                  Continue
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Container>
+      </section>
+
       <HomeCategoryShowcase categories={categories} />
+
+      {brands.length > 0 ? (
+        <section className="border-b border-border bg-background py-14 sm:py-16">
+          <Container>
+            <SectionHeader
+              eyebrow="Parts brands"
+              title="Shop trusted manufacturers."
+              href="/brands"
+              linkLabel="View all brands"
+            />
+
+            <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 lg:grid-cols-4">
+              {brands.slice(0, 8).map((brand) => (
+                <BrandPreviewCard key={brand.id} brand={brand} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      ) : null}
 
       <section className="border-y border-border bg-surface py-20">
         <Container>
@@ -171,7 +260,10 @@ export default async function Home() {
             linkLabel="View featured"
           />
 
-          <ProductCarousel products={featuredProducts} ariaLabel="Featured products" />
+          <ProductCarousel
+            products={featuredProducts}
+            ariaLabel="Featured products"
+          />
         </Container>
       </section>
 
@@ -184,7 +276,48 @@ export default async function Home() {
             linkLabel="View best sellers"
           />
 
-          <ProductCarousel products={bestSellingProducts} ariaLabel="Best-selling products" />
+          <ProductCarousel
+            products={bestSellingProducts}
+            ariaLabel="Best-selling products"
+          />
+        </Container>
+      </section>
+
+      <section className="border-y border-border bg-footer text-footer-foreground">
+        <Container className="py-16">
+          <SectionHeader
+            eyebrow="Goal based shopping"
+            title="Shop by what you want to improve."
+            href="/products"
+            linkLabel="Browse all products"
+          />
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {buildPaths.map((build) => (
+              <Link
+                key={build.title}
+                href={build.href}
+                className="group rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-[var(--shadow-card)] transition-colors hover:border-primary"
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">
+                  Goal
+                </p>
+
+                <h3 className="mt-4 text-2xl font-black uppercase tracking-[-0.04em]">
+                  {build.title}
+                </h3>
+
+                <p className="mt-3 text-sm font-medium leading-6 text-footer-muted">
+                  {build.description}
+                </p>
+
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-footer-muted transition-colors group-hover:text-primary">
+                  Start here
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </Container>
       </section>
 
@@ -201,17 +334,18 @@ export default async function Home() {
             <div key={section.category.id}>
               <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                  <h3 className="text-3xl font-black uppercase tracking-[-0.06em] text-foreground">
+                  <h3 className="text-3xl font-black uppercase tracking-[-0.06em]">
                     {section.category.title}
                   </h3>
-                  <p className="mt-3 max-w-xl text-base font-medium leading-7 text-foreground/75">
+
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
                     {section.category.description}
                   </p>
                 </div>
 
                 <Link
                   href={`/products?category=${section.category.handle}`}
-                  className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-foreground/70 transition-colors hover:text-primary"
+                  className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-primary"
                 >
                   View {section.category.title}
                   <ArrowRight className="h-4 w-4" />
@@ -224,73 +358,59 @@ export default async function Home() {
         </Container>
       </section>
 
-     <section className="border-y border-border bg-footer text-footer-foreground">
-  <Container className="grid gap-10 py-16 lg:grid-cols-[0.75fr_1.25fr] lg:items-stretch">
-    <div className="flex flex-col justify-between border-l-4 border-primary pl-6">
-      <div>
-        <p className="text-sm font-black uppercase tracking-[0.24em] text-primary">
-          Build paths
-        </p>
-
-        <h2 className="mt-4 text-4xl font-black uppercase leading-[0.95] tracking-[-0.06em] text-footer-foreground sm:text-5xl">
-          Shop by intent, not guesswork.
-        </h2>
-
-        <p className="mt-5 max-w-md text-base font-medium leading-7 text-footer-muted">
-          Start with how the car is driven, then move into the parts that match
-          the build direction.
-        </p>
-      </div>
-
-      <Link
-        href="/products"
-        className={cn(
-          buttonVariants({ variant: "primary", size: "lg" }),
-          "mt-8 w-fit",
-        )}
-      >
-        Open catalog
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </div>
-
-    <div className="grid gap-3">
-      {buildPaths.map((build, index) => (
-        <Link
-          key={build.title}
-          href="/products"
-          className="group relative grid gap-6 border border-border bg-background/5 p-6 transition-colors hover:border-primary/70 hover:bg-background/10 sm:grid-cols-[120px_1fr_auto] sm:items-center"
-        >
-          <div className="text-5xl font-black leading-none tracking-[-0.08em] text-footer-foreground/12 transition-colors group-hover:text-primary/35">
-            {String(index + 1).padStart(2, "0")}
-          </div>
-
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-primary">
-              Build path
-            </p>
-
-            <h3 className="text-2xl font-black uppercase leading-none tracking-[-0.04em] text-footer-foreground">
-              {build.title}
-            </h3>
-
-            <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-footer-muted">
-              {build.description}
-            </p>
-          </div>
-
-          <div className="flex h-11 w-11 items-center justify-center border border-border text-footer-muted transition-colors group-hover:border-primary group-hover:text-primary">
-            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </div>
-        </Link>
-      ))}
-    </div>
-  </Container>
-</section>
-
       <Footer />
     </main>
   );
+}
+
+function BrandPreviewCard({ brand }: { brand: ProductBrand }) {
+  const href = `/products?${new URLSearchParams({
+    brand: brand.name,
+  }).toString()}`;
+
+  return (
+    <Link
+      href={href}
+      className="group flex min-w-0 flex-col overflow-hidden border border-border bg-card shadow-[var(--shadow-card)] transition-colors hover:border-primary"
+    >
+      <div className="relative flex h-20 items-center justify-center border-b border-border bg-surface sm:h-24 lg:h-28">
+        {brand.logo ? (
+          <Image
+            src={brand.logo.url}
+            alt={brand.logo.altText}
+            fill
+            className="object-contain p-2 sm:p-3"
+            sizes="(max-width: 639px) 46vw, (max-width: 1023px) 31vw, 24vw"
+          />
+        ) : (
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-base font-black uppercase tracking-[-0.04em] text-primary sm:h-14 sm:w-14 sm:text-lg">
+            {getBrandInitials(brand.name)}
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-3 sm:p-5">
+        <p className="line-clamp-1 text-sm font-black uppercase tracking-[-0.03em] text-foreground transition-colors group-hover:text-primary sm:text-xl">
+          {brand.name}
+        </p>
+
+        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.14em] text-foreground/55 sm:text-xs">
+          {brand.productCount}{" "}
+          {brand.productCount === 1 ? "product" : "products"}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function getBrandInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase();
 }
 
 function SectionHeader({
@@ -307,18 +427,21 @@ function SectionHeader({
   return (
     <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
-        <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">
           {eyebrow}
         </p>
-        <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.06em] text-foreground sm:text-5xl">
+
+        <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.06em] sm:text-5xl">
           {title}
         </h2>
       </div>
+
       <Link
         href={href}
-        className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-foreground/70 transition-colors hover:text-primary"
+        className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-primary"
       >
-        {linkLabel} <ArrowRight className="h-4 w-4" />
+        {linkLabel}
+        <ArrowRight className="h-4 w-4" />
       </Link>
     </div>
   );
