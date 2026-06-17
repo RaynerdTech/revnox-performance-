@@ -54,16 +54,15 @@ export function MobileCatalogFilter({
   const [isOpen, setIsOpen] =
     useState(false);
 
-  const currentFilters: CatalogFilterState =
-    {
-      q: activeSearch,
-      category: activeCategory,
-      brand: activeBrand,
-      featured: activeFeatured,
-      bestSeller: activeBestSeller,
-      available: activeAvailable,
-      sort: activeSort,
-    };
+  const currentFilters: CatalogFilterState = {
+    q: activeSearch,
+    category: activeCategory,
+    brand: activeBrand,
+    featured: activeFeatured,
+    bestSeller: activeBestSeller,
+    available: activeAvailable,
+    sort: activeSort,
+  };
 
   useEffect(() => {
     const previousOverflow =
@@ -82,9 +81,7 @@ export function MobileCatalogFilter({
     <>
       <button
         type="button"
-        onClick={() =>
-          setIsOpen(true)
-        }
+        onClick={() => setIsOpen(true)}
         className="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-soft)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
         aria-label="Open product filters"
         aria-expanded={isOpen}
@@ -99,15 +96,13 @@ export function MobileCatalogFilter({
             ? "visible opacity-100"
             : "pointer-events-none invisible opacity-0",
         )}
-        onClick={() =>
-          setIsOpen(false)
-        }
+        onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
       <aside
         className={cn(
-          "revnox-sidebar-scroll fixed bottom-0 left-0 right-0 z-[60] max-h-[86dvh] overflow-x-hidden overflow-y-auto rounded-t-[2rem] border border-border bg-background p-5 shadow-[var(--shadow-soft)] transition-transform duration-300 lg:hidden",
+          "revnox-sidebar-scroll font-interface fixed bottom-0 left-0 right-0 z-[60] max-h-[86dvh] overflow-x-hidden overflow-y-auto rounded-t-[2rem] border border-border bg-background p-5 shadow-[var(--shadow-soft)] transition-transform duration-300 lg:hidden",
           isOpen
             ? "translate-y-0"
             : "translate-y-full",
@@ -127,9 +122,7 @@ export function MobileCatalogFilter({
 
           <button
             type="button"
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-card-foreground"
             aria-label="Close product filters"
           >
@@ -152,9 +145,7 @@ export function MobileCatalogFilter({
                 ...currentFilters,
                 q: undefined,
               })}
-              onClick={() =>
-                setIsOpen(false)
-              }
+              onClick={() => setIsOpen(false)}
               className="mt-3 inline-flex text-xs font-black uppercase tracking-[0.16em] text-primary"
             >
               Clear search
@@ -174,9 +165,7 @@ export function MobileCatalogFilter({
               !activeAvailable &&
               !activeSort
             }
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             All products
           </MobileFilterLink>
@@ -186,16 +175,13 @@ export function MobileCatalogFilter({
               key={category.id}
               href={buildFilterHref({
                 ...currentFilters,
-                category:
-                  category.handle,
+                category: category.handle,
               })}
               active={
                 activeCategory ===
                 category.handle
               }
-              onClick={() =>
-                setIsOpen(false)
-              }
+              onClick={() => setIsOpen(false)}
             >
               <span className="min-w-0 truncate">
                 {category.title}
@@ -216,18 +202,14 @@ export function MobileCatalogFilter({
                 href={buildFilterHref({
                   ...currentFilters,
                   brand:
-                    activeBrand ===
-                    brand.name
+                    activeBrand === brand.name
                       ? undefined
                       : brand.name,
                 })}
                 active={
-                  activeBrand ===
-                  brand.name
+                  activeBrand === brand.name
                 }
-                onClick={() =>
-                  setIsOpen(false)
-                }
+                onClick={() => setIsOpen(false)}
               >
                 <span className="min-w-0 truncate">
                   {brand.name}
@@ -250,9 +232,7 @@ export function MobileCatalogFilter({
                 : true,
             })}
             active={activeAvailable}
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             In stock
           </MobileFilterLink>
@@ -267,9 +247,7 @@ export function MobileCatalogFilter({
                 : true,
             })}
             active={activeFeatured}
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             Featured
           </MobileFilterLink>
@@ -277,15 +255,12 @@ export function MobileCatalogFilter({
           <MobileFilterLink
             href={buildFilterHref({
               ...currentFilters,
-              bestSeller:
-                activeBestSeller
-                  ? undefined
-                  : true,
+              bestSeller: activeBestSeller
+                ? undefined
+                : true,
             })}
             active={activeBestSeller}
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             Best sellers
           </MobileFilterLink>
@@ -298,9 +273,7 @@ export function MobileCatalogFilter({
               sort: undefined,
             })}
             active={!activeSort}
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             Latest
           </MobileFilterLink>
@@ -313,9 +286,7 @@ export function MobileCatalogFilter({
             active={
               activeSort === "price-asc"
             }
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             Price: low to high
           </MobileFilterLink>
@@ -329,9 +300,7 @@ export function MobileCatalogFilter({
               activeSort ===
               "price-desc"
             }
-            onClick={() =>
-              setIsOpen(false)
-            }
+            onClick={() => setIsOpen(false)}
           >
             Price: high to low
           </MobileFilterLink>
@@ -339,9 +308,7 @@ export function MobileCatalogFilter({
 
         <Link
           href="/products"
-          onClick={() =>
-            setIsOpen(false)
-          }
+          onClick={() => setIsOpen(false)}
           className="mt-6 inline-flex w-full items-center justify-center border border-border bg-card px-5 py-4 text-sm font-black uppercase tracking-[0.14em] text-card-foreground transition-colors hover:border-primary hover:text-primary"
         >
           Clear all filters
@@ -420,7 +387,7 @@ function FilterSection({
 }) {
   return (
     <section className="mt-6 border-t border-border pt-6">
-      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+      <h3 className="font-interface text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
         {title}
       </h3>
 

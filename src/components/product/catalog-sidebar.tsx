@@ -41,19 +41,18 @@ export function CatalogSidebar({
   activeAvailable,
   activeSort,
 }: CatalogSidebarProps) {
-  const currentFilters: CatalogFilterState =
-    {
-      q: activeSearch,
-      category: activeCategory,
-      brand: activeBrand,
-      featured: activeFeatured,
-      bestSeller: activeBestSeller,
-      available: activeAvailable,
-      sort: activeSort,
-    };
+  const currentFilters: CatalogFilterState = {
+    q: activeSearch,
+    category: activeCategory,
+    brand: activeBrand,
+    featured: activeFeatured,
+    bestSeller: activeBestSeller,
+    available: activeAvailable,
+    sort: activeSort,
+  };
 
   return (
-    <aside className="revnox-sidebar-scroll sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-[1.5rem] border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+    <aside className="revnox-sidebar-scroll font-interface sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-[1.5rem] border border-border bg-card p-5 shadow-[var(--shadow-card)]">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">
           Filters
@@ -107,13 +106,9 @@ export function CatalogSidebar({
             key={category.id}
             href={buildFilterHref({
               ...currentFilters,
-              category:
-                category.handle,
+              category: category.handle,
             })}
-            active={
-              activeCategory ===
-              category.handle
-            }
+            active={activeCategory === category.handle}
           >
             <span className="min-w-0 truncate">
               {category.title}
@@ -138,9 +133,7 @@ export function CatalogSidebar({
                     ? undefined
                     : brand.name,
               })}
-              active={
-                activeBrand === brand.name
-              }
+              active={activeBrand === brand.name}
             >
               <span className="min-w-0 truncate">
                 {brand.name}
@@ -184,10 +177,9 @@ export function CatalogSidebar({
         <FilterLink
           href={buildFilterHref({
             ...currentFilters,
-            bestSeller:
-              activeBestSeller
-                ? undefined
-                : true,
+            bestSeller: activeBestSeller
+              ? undefined
+              : true,
           })}
           active={activeBestSeller}
         >
@@ -211,9 +203,7 @@ export function CatalogSidebar({
             ...currentFilters,
             sort: "price-asc",
           })}
-          active={
-            activeSort === "price-asc"
-          }
+          active={activeSort === "price-asc"}
         >
           Price: low to high
         </FilterLink>
@@ -223,9 +213,7 @@ export function CatalogSidebar({
             ...currentFilters,
             sort: "price-desc",
           })}
-          active={
-            activeSort === "price-desc"
-          }
+          active={activeSort === "price-desc"}
         >
           Price: high to low
         </FilterLink>
@@ -250,7 +238,7 @@ function FilterSection({
 }) {
   return (
     <section className="mt-6 border-t border-border pt-6">
-      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+      <h3 className="font-interface text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
         {title}
       </h3>
 
@@ -264,8 +252,7 @@ function FilterSection({
 function buildFilterHref(
   filters: CatalogFilterState,
 ) {
-  const searchParams =
-    new URLSearchParams();
+  const searchParams = new URLSearchParams();
 
   if (filters.q) {
     searchParams.set("q", filters.q);

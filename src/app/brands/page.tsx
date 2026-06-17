@@ -2,11 +2,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ExternalLink,
-  Tags,
-} from "lucide-react";
+import { ArrowRight, ExternalLink, Tags } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Container } from "@/components/ui/container";
@@ -25,10 +21,10 @@ export default async function BrandsPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="border-b border-border bg-secondary text-secondary-foreground">
-        <Container className="flex items-center justify-center py-2 text-center text-[10px] font-semibold uppercase tracking-[0.24em]">
-          Premium performance parts for serious builds
-        </Container>
-      </section>
+  <Container className="revnox-announcement flex items-center justify-center py-2 text-center">
+    Premium performance parts for serious builds
+  </Container>
+</section>
 
       <Header />
 
@@ -76,10 +72,7 @@ export default async function BrandsPage() {
 
               <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                 {brands.map((brand) => (
-                  <BrandCard
-                    key={brand.id}
-                    brand={brand}
-                  />
+                  <BrandCard key={brand.id} brand={brand} />
                 ))}
               </div>
             </>
@@ -102,11 +95,7 @@ export default async function BrandsPage() {
   );
 }
 
-function BrandCard({
-  brand,
-}: {
-  brand: ProductBrand;
-}) {
+function BrandCard({ brand }: { brand: ProductBrand }) {
   const productsHref = `/products?${new URLSearchParams({
     brand: brand.name,
   }).toString()}`;
@@ -134,10 +123,7 @@ function BrandCard({
       </Link>
 
       <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-5">
-        <Link
-          href={productsHref}
-          className="min-w-0"
-        >
+        <Link href={productsHref} className="min-w-0">
           <h2 className="line-clamp-2 break-words text-sm font-black uppercase leading-tight tracking-[-0.04em] transition-colors hover:text-primary sm:text-xl">
             {brand.name}
           </h2>
@@ -159,9 +145,7 @@ function BrandCard({
             href={productsHref}
             className="inline-flex min-h-10 items-center justify-between gap-2 border border-border px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.1em] text-foreground transition-colors hover:border-primary hover:text-primary sm:min-h-11 sm:px-4 sm:text-xs sm:tracking-[0.14em]"
           >
-            <span className="truncate">
-              View products
-            </span>
+            <span className="truncate">View products</span>
 
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
@@ -173,9 +157,7 @@ function BrandCard({
               rel="noopener noreferrer"
               className="inline-flex min-h-10 items-center justify-between gap-2 border border-border px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.1em] text-foreground/65 transition-colors hover:border-primary hover:text-primary sm:min-h-11 sm:px-4 sm:text-xs sm:tracking-[0.14em]"
             >
-              <span className="truncate">
-                Official website
-              </span>
+              <span className="truncate">Official website</span>
 
               <ExternalLink className="h-4 w-4 shrink-0" />
             </a>

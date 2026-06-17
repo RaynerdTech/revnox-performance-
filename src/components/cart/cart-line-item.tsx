@@ -48,7 +48,7 @@ export function CartLineItem({
           <div>
             <Link
               href={`/products/${line.productHandle}`}
-              className="text-xl font-black uppercase leading-tight tracking-[-0.04em] transition-colors hover:text-primary"
+              className="text-xl uppercase leading-[1.3] transition-colors hover:text-primary font-bold"
             >
               {line.productTitle}
             </Link>

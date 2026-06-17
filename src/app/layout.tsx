@@ -1,23 +1,46 @@
 // This file defines the root HTML layout, global metadata, font setup, and theme provider for the storefront.
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Michroma } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Inter_Tight,
+  Orbitron,
+  Oxanium,
+} from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const michroma = Michroma({
-  variable: "--font-michroma",
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
+  subsets: ["latin"],
+  weight: ["600", "700", "900"],
+  display: "swap",
+});
+
+const oxanium = Oxanium({
+  variable: "--font-oxanium",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
 });
 
 const siteUrl =
@@ -92,12 +115,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`
-          ${geistSans.variable}
-          ${geistMono.variable}
-          ${michroma.variable}
-          antialiased
-        `}
+        className={[
+          geistSans.variable,
+          geistMono.variable,
+          interTight.variable,
+          orbitron.variable,
+          oxanium.variable,
+          "antialiased",
+        ].join(" ")}
       >
         <ThemeProvider
           attribute="class"

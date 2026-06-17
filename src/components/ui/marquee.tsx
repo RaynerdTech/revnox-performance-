@@ -5,7 +5,7 @@ const marqueeItems = [
   "Suspension systems",
   "Performance exhaust",
   "Carbon intake",
-  "Fitment-focused catalog",
+  "Performance-focused catalog",
   "Secure Shopify checkout",
   "Premium auto parts",
 ];
@@ -19,7 +19,7 @@ export function Marquee() {
         {repeatedItems.map((item, index) => (
           <div
             key={`${item}-${index}`}
-            className="flex items-center gap-10 text-xs font-black uppercase tracking-[0.28em] text-footer-muted"
+            className="revnox-marquee-text flex items-center gap-10 text-footer-muted"
           >
             <span>{item}</span>
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />

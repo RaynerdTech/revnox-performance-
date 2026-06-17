@@ -26,8 +26,7 @@ export async function generateMetadata({
 }: ProductPageProps): Promise<Metadata> {
   const { handle } = await params;
 
-  const product =
-    await getProductByHandle(handle);
+  const product = await getProductByHandle(handle);
 
   if (!product) {
     return {
@@ -35,9 +34,7 @@ export async function generateMetadata({
     };
   }
 
-  const description =
-    product.description ||
-    product.title;
+  const description = product.description || product.title;
 
   return {
     title: product.title,
@@ -63,29 +60,24 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ProductPage({
-  params,
-}: ProductPageProps) {
+export default async function ProductPage({ params }: ProductPageProps) {
   const { handle } = await params;
 
-  const product =
-    await getProductByHandle(handle);
+  const product = await getProductByHandle(handle);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts =
-    await getRelatedProducts(product, 8);
+  const relatedProducts = await getRelatedProducts(product, 8);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <section className="border-b border-border bg-secondary text-secondary-foreground">
-        <Container className="flex items-center justify-center py-2 text-center text-[10px] font-semibold uppercase tracking-[0.24em]">
-          Premium performance parts for
-          serious builds
-        </Container>
-      </section>
+    <section className="border-b border-border bg-secondary text-secondary-foreground">
+  <Container className="revnox-announcement flex items-center justify-center py-2 text-center">
+    Premium performance parts for serious builds
+  </Container>
+</section>
 
       <Header />
 
@@ -121,9 +113,8 @@ export default async function ProductPage({
               </h2>
 
               <p className="mt-4 text-base font-medium leading-7 text-foreground/70">
-                Explore related products
-                selected from the current
-                Shopify catalog.
+                Explore related products selected from the current Shopify
+                catalog.
               </p>
             </div>
 

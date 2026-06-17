@@ -91,7 +91,7 @@ export function WishlistList() {
           <div className="min-w-0">
             <Link
               href={`/products/${item.handle}`}
-              className="line-clamp-2 text-base font-black uppercase leading-tight tracking-[-0.04em] transition-colors hover:text-primary sm:text-xl"
+              className="line-clamp-2 text-base font-bold uppercase leading-[1.3] transition-colors hover:text-primary sm:text-xl"
             >
               {item.title}
             </Link>

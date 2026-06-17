@@ -32,7 +32,7 @@ export function ProductVariantList({
         : "Unavailable";
 
   return (
-    <div className="mt-6 border-y border-border py-5">
+    <div className="font-interface mt-6 border-y border-border py-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/55">
@@ -83,7 +83,7 @@ export function ProductVariantList({
                 SKU
               </p>
 
-              <p className="mt-2 break-all text-sm font-black text-foreground">
+              <p className="font-mono mt-2 break-all text-sm font-black text-foreground">
                 {variant.sku}
               </p>
             </div>

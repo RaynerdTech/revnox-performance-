@@ -4,7 +4,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import type { Product } from "@/lib/commerce/types";
 import { formatMoney } from "@/lib/utils/money";
 import { cn } from "@/lib/utils/cn";
@@ -17,40 +20,66 @@ type ProductCardProps = {
   product: Product;
 };
 
-export function ProductCard({ product }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+export function ProductCard({
+  product,
+}: ProductCardProps) {
+  const [
+    isWishlisted,
+    setIsWishlisted,
+  ] = useState(false);
 
-  const productHref = `/products/${product.handle}`;
+  const productHref =
+    `/products/${product.handle}`;
 
   useEffect(() => {
     function syncWishlist() {
-      setIsWishlisted(isProductWishlisted(product.id));
+      setIsWishlisted(
+        isProductWishlisted(product.id),
+      );
     }
 
     syncWishlist();
 
-    window.addEventListener("revnox:wishlist-updated", syncWishlist);
-    window.addEventListener("storage", syncWishlist);
+    window.addEventListener(
+      "revnox:wishlist-updated",
+      syncWishlist,
+    );
+
+    window.addEventListener(
+      "storage",
+      syncWishlist,
+    );
 
     return () => {
-      window.removeEventListener("revnox:wishlist-updated", syncWishlist);
-      window.removeEventListener("storage", syncWishlist);
+      window.removeEventListener(
+        "revnox:wishlist-updated",
+        syncWishlist,
+      );
+
+      window.removeEventListener(
+        "storage",
+        syncWishlist,
+      );
     };
   }, [product.id]);
 
   function toggleWishlist() {
-    const nextItems = toggleWishlistItem(product);
+    const nextItems =
+      toggleWishlistItem(product);
 
     setIsWishlisted(
-      nextItems.some((item) => item.id === product.id),
+      nextItems.some(
+        (item) =>
+          item.id === product.id,
+      ),
     );
   }
 
   return (
-    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-card sm:rounded-[1.5rem] sm:transition-transform sm:duration-200 sm:hover:-translate-y-1">
+    <article className="group font-interface flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-card sm:rounded-[1.5rem] sm:transition-transform sm:duration-200 sm:hover:-translate-y-1">
       <div className="relative border-b border-border bg-surface">
         {product.badge ? (
-          <div className="absolute left-2 top-2 z-10 max-w-[calc(100%-3rem)] truncate rounded-full bg-primary px-2.5 py-1.5 text-[8px] font-black uppercase tracking-[0.12em] text-primary-foreground sm:left-4 sm:top-4 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.18em]">
+          <div className="absolute left-2 top-2 z-10 max-w-[calc(100%-3rem)] truncate rounded-full bg-primary px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[0.08em] text-primary-foreground sm:left-4 sm:top-4 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.12em]">
             {product.badge}
           </div>
         ) : null}
@@ -73,7 +102,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart
             className={cn(
               "h-3.5 w-3.5 sm:h-4 sm:w-4",
-              isWishlisted && "fill-current",
+              isWishlisted &&
+                "fill-current",
             )}
           />
         </button>
@@ -95,26 +125,28 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-6">
         <div className="mb-2 grid min-w-0 gap-1 sm:mb-4 sm:flex sm:items-start sm:justify-between sm:gap-4">
           {product.brand ? (
-            <p className="truncate text-[8px] font-black uppercase tracking-[0.12em] text-foreground/60 sm:text-xs sm:tracking-[0.18em] sm:text-foreground/65">
+            <p className="truncate text-[8px] font-bold uppercase leading-normal tracking-[0.08em] text-foreground/60 sm:text-xs sm:tracking-[0.12em] sm:text-foreground/65">
               {product.brand}
             </p>
           ) : null}
 
           <p
             className={cn(
-              "text-[8px] font-black uppercase tracking-[0.12em] sm:shrink-0 sm:text-[11px] sm:tracking-[0.16em]",
+              "text-[8px] font-bold uppercase leading-normal tracking-[0.08em] sm:shrink-0 sm:text-[11px] sm:tracking-[0.12em]",
               product.availableForSale
                 ? "text-primary"
                 : "text-foreground/50",
             )}
           >
-            {product.availableForSale ? "In stock" : "Unavailable"}
+            {product.availableForSale
+              ? "In stock"
+              : "Unavailable"}
           </p>
         </div>
 
         <Link
           href={productHref}
-          className="line-clamp-2 break-words text-[13px] font-black uppercase leading-[1.15] tracking-[-0.035em] text-foreground transition-colors hover:text-primary sm:text-2xl sm:leading-tight sm:tracking-[-0.05em]"
+          className="revnox-product-text line-clamp-2 break-words text-[13px] font-bold uppercase leading-[1.3]text-foreground transition-colors hover:text-primary sm:text-2xl sm:leading-[1.2]"
         >
           {product.title}
         </Link>
@@ -127,17 +159,20 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="mt-auto flex min-w-0 items-end justify-between gap-2 pt-4 sm:gap-4 sm:pt-8">
           <div className="min-w-0">
-            <p className="text-[8px] font-black uppercase tracking-[0.14em] text-foreground/55 sm:text-xs sm:tracking-[0.18em] sm:text-foreground/60">
+            <p className="text-[8px] font-bold uppercase leading-normal tracking-[0.08em] text-foreground/55 sm:text-xs sm:tracking-[0.12em] sm:text-foreground/60">
               From
             </p>
 
             <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-1 sm:gap-2">
-              <p className="truncate text-base font-black tracking-[-0.04em] text-foreground sm:text-2xl sm:tracking-[-0.05em]">
-                {formatMoney(product.price, product.currencyCode)}
+              <p className="revnox-product-text truncate text-base font-bold tracking-[-0.02em] text-foreground sm:text-2xl">
+                {formatMoney(
+                  product.price,
+                  product.currencyCode,
+                )}
               </p>
 
               {product.compareAtPrice ? (
-                <p className="hidden text-sm font-bold text-foreground/55 line-through sm:block">
+                <p className="hidden text-sm font-semibold text-foreground/55 line-through sm:block">
                   {formatMoney(
                     product.compareAtPrice,
                     product.currencyCode,
@@ -149,7 +184,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <Link
             href={productHref}
-            className="hidden h-10 shrink-0 items-center justify-center rounded-full border border-border bg-card px-5 text-xs font-black uppercase tracking-[0.16em] text-foreground transition-colors hover:border-primary hover:text-primary sm:inline-flex"
+            className="hidden h-10 shrink-0 items-center justify-center rounded-full border border-border bg-card px-5 text-xs font-bold uppercase tracking-[0.1em] text-foreground transition-colors hover:border-primary hover:text-primary sm:inline-flex"
           >
             View
           </Link>

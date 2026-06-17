@@ -17,11 +17,11 @@ export default async function CartPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <section className="border-b border-border bg-secondary text-secondary-foreground">
-        <Container className="flex items-center justify-center py-2 text-center text-[10px] font-semibold uppercase tracking-[0.24em]">
-          Premium performance parts for serious builds
-        </Container>
-      </section>
+   <section className="border-b border-border bg-secondary text-secondary-foreground">
+  <Container className="revnox-announcement flex items-center justify-center py-2 text-center">
+    Premium performance parts for serious builds
+  </Container>
+</section>
 
       <Header />
 

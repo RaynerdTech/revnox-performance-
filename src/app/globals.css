@@ -1,9 +1,29 @@
-/* This file defines the global Revnox Performance design tokens, theme colors, base styles, and Tailwind CSS setup. */
+/* This file defines the global Revnox Performance design tokens, typography, theme colors, base styles, and Tailwind CSS setup. */
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Global font utilities:
+     font-sans
+     font-mono
+     font-display
+     font-interface
+     font-technical
+  */
+  --font-sans: var(--font-inter-tight);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-orbitron);
+  --font-interface: var(--font-inter-tight);
+  --font-technical: var(--font-oxanium);
+
+  /*
+    Minimum small-text utility:
+    Tailwind's text-xs now renders at 14px.
+  */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.25rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -32,15 +52,15 @@
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
 
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+  --color-footer-muted: var(--footer-muted);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 6px);
   --radius-2xl: calc(var(--radius) + 12px);
-
-  --color-footer: var(--footer);
---color-footer-foreground: var(--footer-foreground);
---color-footer-muted: var(--footer-muted);
 }
 
 :root {
@@ -71,7 +91,7 @@
 
   --danger: #b91c1c;
   --danger-foreground: #ffffff;
-  
+
   --radius: 0.875rem;
 
   --shadow-soft: 0 18px 50px rgba(17, 17, 19, 0.08);
@@ -79,8 +99,8 @@
   --shadow-focus: 0 0 0 4px rgba(193, 18, 31, 0.18);
 
   --footer: #08080a;
---footer-foreground: #f7f7f4;
---footer-muted: rgba(247, 247, 244, 0.62);
+  --footer-foreground: #f7f7f4;
+  --footer-muted: rgba(247, 247, 244, 0.62);
 }
 
 .dark {
@@ -117,11 +137,13 @@
   --shadow-focus: 0 0 0 4px rgba(255, 37, 58, 0.22);
 
   --footer: #08080a;
---footer-foreground: #f7f7f4;
---footer-muted: rgba(247, 247, 244, 0.62);
+  --footer-foreground: #f7f7f4;
+  --footer-muted: rgba(247, 247, 244, 0.62);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -131,10 +153,18 @@ html {
 
 body {
   min-height: 100vh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 500;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -144,9 +174,64 @@ textarea {
   font: inherit;
 }
 
+button,
+a {
+  cursor: pointer;
+}
+
 a {
   color: inherit;
   text-decoration: none;
+}
+
+.revnox-announcement {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-size: 0.65rem; /* 12px */
+  font-weight: 700;
+  line-height: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.revnox-marquee-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+
+
+/*
+  Existing heading system.
+  Orbitron remains the primary heading font.
+*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family:
+    var(--font-orbitron),
+    var(--font-oxanium),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-synthesis: none;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 ::selection {
@@ -154,29 +239,152 @@ a {
   color: var(--primary-foreground);
 }
 
+/* Global interface typography. */
+.revnox-home {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* Existing hero heading treatment. */
+.revnox-display {
+  font-family:
+    var(--font-orbitron),
+    var(--font-oxanium),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-synthesis: none;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* Existing section heading treatment. */
+.revnox-heading {
+  font-family:
+    var(--font-orbitron),
+    var(--font-oxanium),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-synthesis: none;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* Compact interface labels. */
+.revnox-label {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1.25rem;
+  letter-spacing: 0.095em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* Navigation, buttons, and short calls to action. */
+.revnox-nav-text {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1.25rem;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* Product names, prices, filters, and compact ecommerce content. */
+.revnox-product-text {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Optional long-form text utility. */
+.revnox-readable {
+  font-family:
+    var(--font-inter-tight),
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-weight: 400;
+}
+
+/* Technical specifications, SKUs, dimensions, and measurements. */
+.revnox-spec,
+code,
+pre,
+kbd,
+samp {
+  font-family:
+    var(--font-geist-mono),
+    monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Decorative global grid background. */
 .revnox-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(128, 128, 128, 0.11) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(128, 128, 128, 0.11) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      rgba(128, 128, 128, 0.11) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(128, 128, 128, 0.11) 1px,
+      transparent 1px
+    );
   background-size: 42px 42px;
 }
 
+/* Decorative radial background treatment. */
 .revnox-radial {
   background:
-    radial-gradient(circle at 18% 16%, rgba(193, 18, 31, 0.16), transparent 34%),
-    radial-gradient(circle at 84% 18%, rgba(168, 173, 183, 0.18), transparent 34%),
-    radial-gradient(circle at 50% 100%, rgba(193, 18, 31, 0.09), transparent 40%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-  }
+    radial-gradient(
+      circle at 18% 16%,
+      rgba(193, 18, 31, 0.16),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 84% 18%,
+      rgba(168, 173, 183, 0.18),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(193, 18, 31, 0.09),
+      transparent 40%
+    );
 }
 
 /* This animation powers the premium horizontal marquee used on the homepage. */
@@ -192,15 +400,14 @@ a {
 
 .revnox-marquee-track {
   animation: revnox-marquee 28s linear infinite;
+  will-change: transform;
 }
 
 .revnox-marquee-track:hover {
   animation-play-state: paused;
 }
 
-
-
-/* Hides native carousel scrollbars while preserving horizontal swipe/scroll behavior. */
+/* Hides native carousel scrollbars while preserving horizontal swipe behavior. */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -208,8 +415,7 @@ a {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}   
-
+}
 
 /* Powers the compact category marquee on the homepage. */
 @keyframes revnox-category-marquee {
@@ -231,13 +437,7 @@ a {
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .revnox-category-marquee-track {
-    animation: none;
-  }
-}
-
-/* Keeps primary/action buttons readable across light and dark themes. */
+/* Keeps primary and danger buttons readable across both themes. */
 .bg-primary,
 .bg-primary * {
   color: var(--primary-foreground);
@@ -247,11 +447,6 @@ a {
 .bg-danger * {
   color: var(--danger-foreground);
 }
-
-a {
-  pointer-events: cursor;
-}
-
 
 /* Themed scrollbar for sticky catalog filter panels. */
 .revnox-sidebar-scroll {
@@ -270,50 +465,92 @@ a {
 
 .revnox-sidebar-scroll::-webkit-scrollbar-thumb {
   background: var(--primary);
-  border-radius: 999px;
   border: 2px solid var(--surface);
+  border-radius: 999px;
 }
 
 .revnox-sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--ring);
 }
 
-
-
-
 /* Premium glass surfaces for overlays and floating search UI. */
 .revnox-glass-overlay {
-  background: color-mix(in srgb, var(--background) 94%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--background) 94%,
+    transparent
+  );
   backdrop-filter: blur(30px) saturate(145%);
   -webkit-backdrop-filter: blur(30px) saturate(145%);
 }
 
 .revnox-glass {
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--card) 92%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--border) 92%,
+      transparent
+    );
   box-shadow:
-    0 24px 80px color-mix(in srgb, var(--foreground) 14%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--background) 80%, transparent);
+    0 24px 80px
+      color-mix(
+        in srgb,
+        var(--foreground) 14%,
+        transparent
+      ),
+    inset 0 1px 0
+      color-mix(
+        in srgb,
+        var(--background) 80%,
+        transparent
+      );
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
 .revnox-glass-strong {
-  background: color-mix(in srgb, var(--card) 97%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 96%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--card) 97%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--border) 96%,
+      transparent
+    );
   box-shadow:
-    0 24px 80px color-mix(in srgb, var(--foreground) 16%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--background) 86%, transparent);
+    0 24px 80px
+      color-mix(
+        in srgb,
+        var(--foreground) 16%,
+        transparent
+      ),
+    inset 0 1px 0
+      color-mix(
+        in srgb,
+        var(--background) 86%,
+        transparent
+      );
   backdrop-filter: blur(30px) saturate(160%);
   -webkit-backdrop-filter: blur(30px) saturate(160%);
 }
 
 .revnox-glass-soft {
-  background: color-mix(in srgb, var(--background) 88%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--background) 88%,
+    transparent
+  );
   backdrop-filter: blur(20px) saturate(135%);
   -webkit-backdrop-filter: blur(20px) saturate(135%);
 }
-
 
 /* Themed scrollbar for header search results. */
 .revnox-search-results-scroll {
@@ -331,8 +568,8 @@ a {
 
 .revnox-search-results-scroll::-webkit-scrollbar-thumb {
   background: var(--primary);
-  border-radius: 999px;
   border: 2px solid transparent;
+  border-radius: 999px;
   background-clip: content-box;
 }
 
@@ -341,5 +578,20 @@ a {
   background-clip: content-box;
 }
 
+/* Accessibility: disable non-essential motion for users who request it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 
-
+  .revnox-marquee-track,
+  .revnox-category-marquee-track {
+    animation: none;
+    transform: none;
+  }
+}
